@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Beam2D</title>
+    </head>
+    <body>
+        <table>
+            <tr>
+                <td><div id="canvas">
+                		<!-- canvas will go here! -->
+                </div></td>
+                <td><div>
+                    Beams:<br>
+                    <select id="list_beams" onclick="updateSelected('list_beams')" multiple>
+                    </select><br>
+                    <button onclick="delUserObject('list_beams', 'beam')">Delete Selected</button><br>
+                    <button onclick="delUserObjectsAll('beam')">Delete All</button><br><br>
+                    Supports:<br>
+                    <select id="list_supports" onclick="updateSelected('list_supports')" multiple>
+                    </select><br>
+                    <button onclick="delUserObject('list_supports', 'support')">Delete Selected</button><br>
+                    <button onclick="delUserObjectsAll('support')">Delete All</button><br><br>
+                    Loads:<br>
+                    <select id="list_loads" onclick="updateSelected('list_loads')" multiple>
+                    </select><br>
+                    <button onclick="delUserObject('list_loads', 'load')">Delete Selected</button><br>
+                    <button onclick="delUserObjectsAll('load')">Delete All</button><br><br>
+                </div></td>
+            </tr>
+        </table>
+
+        <div class="input-tab">
+            <button class="tablinks" onclick="openTab(event, 'Beam')">Beam</button>
+            <button class="tablinks" onclick="openTab(event, 'Support')">Support</button>
+            <button class="tablinks" onclick="openTab(event, 'Force')">Force</button>
+        </div>
+        <div id="Beam" class="tabcontent">
+          <h3>Beam</h3>
+          <table>
+              <tr>
+                  <td>x1</td>
+                  <td><input id="beam_x1" value="0"/> m</td>
+              </tr>
+              <tr>
+                  <td>y1</td>
+                  <td><input id="beam_y1" value="0"/> m</td>
+              </tr>
+              <tr>
+                  <td>x2</td>
+                  <td><input id="beam_x2" value="1"/> m</td>
+              </tr>
+              <tr>
+                  <td>y2</td>
+                  <td><input id="beam_y2" value="0"/> m</td>
+              </tr>
+              <tr>
+                  <td><button onclick="addUserBeam()">Add Beam</button></td>
+                  <td></td>
+              </tr>
+            </table>
+        </div>
+        <div id="Support" class="tabcontent">
+          <h3>Support</h3>
+          <table>
+              <tr>
+                  <td>x</td>
+                  <td><input id="support_x" value="0"/> m</td>
+              </tr>
+              <tr>
+                  <td>y</td>
+                  <td><input id="support_y" value="0"/> m</td>
+              </tr>
+              <tr>
+                  <td>type</td>
+                  <td><form action="">
+                        <input type="radio" name="support_type" value="support_wrist" checked="checked"><img src="imgs/support_wrist.png">
+                        <input type="radio" name="support_type" value="support_trundle"><img src="imgs/support_trundle.png">
+                    </form></td>
+              </tr>
+              <tr>
+                  <td>direction</td>
+                  <td><form action="">
+                        <input type="radio" name="support_dir" value="dir_y_plus" checked="checked"><img src="imgs/support_dir_yp.png">
+                        <input type="radio" name="support_dir" value="dir_y_minus"><img src="imgs/support_dir_ym.png">
+                        <input type="radio" name="support_dir" value="dir_x_plus"><img src="imgs/support_dir_xp.png">
+                        <input type="radio" name="support_dir" value="dir_x_minus"><img src="imgs/support_dir_xm.png">
+                    </form></td>
+              </tr>
+              <tr>
+                  <td><button onclick="addUserSupport()">Add Support</button></td>
+                  <td></td>
+              </tr>
+            </table>
+        </div>
+        <div id="Force" class="tabcontent">
+          <h3>Force</h3>
+          <table>
+              <tr>
+                  <td>x</td>
+                  <td><input id="force_x" value="0"/> m</td>
+              </tr>
+              <tr>
+                  <td>y</td>
+                  <td><input id="force_y" value="0"/> m</td>
+              </tr>
+              <tr>
+                  <td>magnitude</td>
+                  <td><input id="force_magnitude" value="1"/> N</td>
+              </tr>
+              <tr>
+                  <td>angle</td>
+                  <td><input id="force_angle" value="90"/> °</td>
+              </tr>
+              <tr>
+                  <td><button onclick="addUserForce()">Add Force</button></td>
+                  <td></td>
+              </tr>
+          </table>
+        </div>
+
+    </body>
+    <script src="js/math.min.js"></script>
+    <script src="js/p5.min.js"></script>
+    <script src="js/globals.js"></script>
+    <script src="js/user.input.js"></script>
+    <script src="js/beam2D.objects.js"></script>
+    <script src="js/main.js"></script>
+</html>
