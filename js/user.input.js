@@ -29,8 +29,15 @@ function updateUIList(list, type){
         if(b2dObjects[i].type == type){
             var opt = document.createElement('option');
             opt.value = b2dObjects[i].id;
-            type = type == "load" ? b2dObjects[i].load_type : type;
-            opt.innerHTML = type + " - " + b2dObjects[i].id + " ";
+            var list_type = "";
+            if(type == "support"){
+                list_type = b2dObjects[i].support_type;
+            } else if(type == "load"){
+                list_type = b2dObjects[i].load_type;
+            } else {
+                list_type = type;
+            }
+            opt.innerHTML = list_type + " - " + b2dObjects[i].id + " ";
             select.appendChild(opt);
         }
     }
@@ -88,12 +95,36 @@ function addUserSupport(){
     updateUIList("list_supports", "support");
 }
 
-function addUserForce(){
+function addUserForceMag(){
     var x = parseFloat(document.getElementById('force_x').value);
     var y = parseFloat(document.getElementById('force_y').value);
     var magnitude = parseFloat(document.getElementById('force_magnitude').value);
     var angle = parseFloat(document.getElementById('force_angle').value);
 
-    b2dObjects.push(new Load(x, y, magnitude, angle));
+    var c_x = magnitude * cos(radians(angle));
+    var c_y = magnitude * sin(radians(angle));
+
+    b2dObjects.push(new Load(x, y, 0, 0, "load_force", c_x, c_y, 0, 0));
+    updateUIList("list_loads", "load");
+}
+
+function addUserForceComp(){
+    var x = parseFloat(document.getElementById('force_x').value);
+    var y = parseFloat(document.getElementById('force_y').value);
+
+    var c_x = parseFloat(document.getElementById('force_c_x').value);
+    var c_y = parseFloat(document.getElementById('force_c_y').value);
+
+    b2dObjects.push(new Load(x, y, 0, 0, "load_force", c_x, c_y, 0, 0));
+    updateUIList("list_loads", "load");
+}
+
+function addUserMoment(){
+    var x = parseFloat(document.getElementById('moment_x').value);
+    var y = parseFloat(document.getElementById('moment_y').value);
+
+    var mag = parseFloat(document.getElementById('moment_magnitude').value);
+
+    b2dObjects.push(new Load(x, y, 0, 0, "load_moment", mag, 0, 0, 0));
     updateUIList("list_loads", "load");
 }
