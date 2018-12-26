@@ -1,7 +1,7 @@
 class Beam
 {
-    constructor(x1, y1, x2, y2){
-        this.id = globalID++;
+    constructor(id, x1, y1, x2, y2){
+        this.id = id;
         this.type = "beam";
         this.x1 = x1;
         this.y1 = y1;
@@ -9,7 +9,7 @@ class Beam
         this.y2 = y2;
     }
 
-    show(selected){
+    show(selected, scale){
         if(selected){
             stroke(255, 0, 0);
         } else {
@@ -17,21 +17,17 @@ class Beam
         }
 
         strokeWeight(3);
-        line(this.x1 * drawScaleFactor,
-            height - (this.y1 * drawScaleFactor),
-            this.x2 * drawScaleFactor,
-            height - (this.y2 * drawScaleFactor));
-    }
-
-    getLength() {
-        return sqrt((this.x2 - this.x1) * (this.x2 - this.x1) + (this.y2 - this.y1) * (this.y2 - this.y1));
+        line(this.x1 * scale,
+            height - (this.y1 * scale),
+            this.x2 * scale,
+            height - (this.y2 * scale));
     }
 }
 
 class Support
 {
-    constructor(x, y, type, dir){
-        this.id = globalID++;
+    constructor(id, x, y, type, dir){
+        this.id = id;
         this.type = "support";
         this.support_type = type;
         this.x = x;
@@ -39,7 +35,7 @@ class Support
         this.dir = dir;
     }
 
-    show(selected){
+    show(selected, scale){
         if(selected){
             stroke(255, 0, 0);
         } else {
@@ -61,22 +57,38 @@ class Support
         }
 
         push();
-        translate(this.x * drawScaleFactor, height - (this.y * drawScaleFactor));
+        translate(this.x * scale, height - (this.y * scale));
         rotate(angle);
         if(this.support_type == "support_wrist"){
-            triangle(  0,  0,
-                      15, 25,
-                     -15, 25);
-
             fill(0, 0, 128);
-            ellipse(0, 0, 10);
-        } else if(this.support_type == "support_trundle"){
             triangle( 0,  0,
                      10, 15,
                     -10, 15);
 
+            line(0, 15, 15,  15);
+            line(0, 15, -15, 15);
+            strokeWeight(2);
+            line(-10, 15, -15, 25);
+            line( -5, 15, -10, 25);
+            line(  0, 15,  -5, 25);
+            line(  5, 15,   0, 25);
+            line( 10, 15,   5, 25);
+            line( 15, 15,  10, 25);
+        } else if(this.support_type == "support_trundle"){
+            triangle( 0,  0,
+                     10, 15,
+                    -10, 15);
             fill(0, 0, 128);
             ellipse(0, 20, 10);
+            line(0, 25, 15,  25);
+            line(0, 25, -15, 25);
+            strokeWeight(2);
+            line(-10, 25, -15, 35);
+            line( -5, 25, -10, 35);
+            line(  0, 25,  -5, 35);
+            line(  5, 25,   0, 35);
+            line( 10, 25,   5, 35);
+            line( 15, 25,  10, 35);
         } else if(this.support_type == "support_fixed"){
             line(0, 0, 15,  0);
             line(0, 0, -15, 0);
@@ -94,8 +106,8 @@ class Support
 
 class Load
 {
-    constructor(x1, y1, x2, y2, type, c_x1, c_y1, c_x2, c_y2){
-        this.id = globalID++;
+    constructor(id, x1, y1, x2, y2, type, c_x1, c_y1, c_x2, c_y2){
+        this.id = id;
         this.type = "load";
         this.load_type = type;
         this.x1 = x1;
@@ -108,7 +120,7 @@ class Load
         this.c_y2 = c_y2;
     }
 
-    show(selected){
+    show(selected, scale){
         if(selected){
             stroke(255, 0, 0);
             fill(255, 0, 0);
@@ -118,7 +130,7 @@ class Load
         }
 
         push();
-        translate(this.x1 * drawScaleFactor, height - (this.y1 * drawScaleFactor));
+        translate(this.x1 * scale, height - (this.y1 * scale));
 
         if(this.load_type == "load_force"){
             line(0, 0, this.c_x1, -this.c_y1);
