@@ -24,12 +24,12 @@ class Beam2DSolver{
         this.K0 = this.createCompleteStiffnessMatrix();
         this.K1 = math.clone(this.K0);
 
-        this.p1 = math.zeros(this.K0._size[0], 1);    // n x 1
+        this.p1 = math.zeros(this.K0.size()[0], 1);    // n x 1
 
         this.applyBoundaryConditions(this.p1, this.K1);
 
         this.d = math.lusolve(this.K1, this.p1);        // the magic happens here ;)
-        this.p0 = math.multiply(this.K0, this.d);       // calculate reaction forces
+        this.p0 = math.multiply(this.K0, this.d);       // calculaton of the reaction forces
 
         this.generateDeflection();
         this.generateRotation();
@@ -46,16 +46,22 @@ class Beam2DSolver{
 
             var L = sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y));
 
-            for(var x = p1.x; x <= p2.x; x += this.dx){
-                var v = this.v_x(this.d, L, x);
+            for(var x = p1.x, x_loc = 0.0; x <= p2.x; x += this.dx, x_loc += this.dx){
+                var d_i = math.zeros(4, 1);
+                d_i._data[0][0] = this.d._data[i    ][0];
+                d_i._data[1][0] = this.d._data[i + 1][0];
+                d_i._data[2][0] = this.d._data[i + 2][0];
+                d_i._data[3][0] = this.d._data[i + 3][0];
 
-                this.v.push({ x: x, v: v._data[0]});
+                var v_dx = this._v(d_i, L, x_loc);
+
+                this.v.push({ x: x, v: v_dx._data[0]});
             }
         }
         return this.v;
     }
 
-    v_x(d, L, x){
+    _v(d, L, x){
         var N =  math.matrix([(1/(L * L * L)) * (L * L * L - 3 * L * x * x + 2 * x * x * x),
                               (1/(L * L))     * (L * L * x - 2 * L * x * x + x * x * x),
                               (1/(L * L * L)) * (3 * L * x * x - 2 * x * x * x),
@@ -66,16 +72,15 @@ class Beam2DSolver{
     }
 
     generateRotation(){
-        // phi = dv/dx
         this.phi = [];
         for(var i = 0; i < this.v.length - 1; i++){
             var x = this.v[i].x;
             var v1 = this.v[i].v;
             var v2 = this.v[i + 1].v;
 
-            var phi = (v2 - v1) / this.dx;
+            var phi_dx = (v2 - v1) / this.dx;  // phi = dv/dx
 
-            this.phi.push({ x: x, phi: phi });
+            this.phi.push({ x: x, phi: phi_dx });
         }
         return this.phi;
     }
@@ -88,14 +93,14 @@ class Beam2DSolver{
 
             var x = p1.x;
             for(; x <= p2.x; x += this.dx){
-                var T_dx = this._createT(x);
+                var T_dx = this._T(x);
 
                 this.T.push({ x: x, T: T_dx });
             }
 
             /* last point, just to be sure */
             if(x != p2.x){
-                var T_dx = this._createT(p2.x);
+                var T_dx = this._T(p2.x);
                 this.T.push({ x: x, T: T_dx });
             }
         }
@@ -103,7 +108,7 @@ class Beam2DSolver{
         return this.T;
     }
 
-    _createT(x){
+    _T(x){
         var T = 0;
         // add loads
         for(var c = 0; c < this.structure.length; c++){
@@ -141,14 +146,14 @@ class Beam2DSolver{
 
             var x = p1.x;
             for(; x <= p2.x; x += this.dx){
-                var M_dx = this._createM(x);
+                var M_dx = this._Mz(x);
 
                 this.M.push({ x: x, M: M_dx });
             }
 
             /* last point, just to be sure */
             if(x != p2.x){
-                var M_dx = this._createM(x);
+                var M_dx = this._Mz(x);
                 this.M.push({ x: x, M: M_dx });
             }
         }
@@ -156,7 +161,7 @@ class Beam2DSolver{
         return this.M;
     }
 
-    _createM(x){
+    _Mz(x){
         var M = 0;
 
         for(var i = 0; i * this.dx <= x; i++){
@@ -216,7 +221,6 @@ class Beam2DSolver{
 
     createCompleteStiffnessMatrix(){
         var Ks = [];
-
         for(var i = 0; i < this.env.getPointsSize() - 1; i++){
             var p1 = this.env.getPoint(i);
             var p2 = this.env.getPoint(i + 1);
@@ -224,24 +228,32 @@ class Beam2DSolver{
             Ks.push(K);
         }
 
-        var K;
-        // add matricies if more than 2
-        for(var i = 0; i < Ks.length; i++){
-            K = Ks[0];  // for now!!!!
+        var K = Ks[0];
+        // add matricies
+        for(var i = 1; i < Ks.length; i++){
+            var K_i = Ks[i];
+            var s_K = K.size()[0];
+            K.resize([s_K + 2, s_K + 2]);
+
+            for(var n = 0; n < 4; n++){
+                for(var m = 0; m < 4; m++){
+                    K._data[(s_K - 2) + n][(s_K - 2) + m] += K_i._data[n][m];
+                }
+            }
         }
 
         return K;
     }
 
     _zeroRow(m, r){
-        var size = m._size[1];
+        var size = m.size()[1];     // n x n
         for(var i = 0; i < size; i++){
             m.subset(math.index(r, i), 0);
         }
     }
 
     _zeroCol(m, c){
-        var size = m._size[0];
+        var size = m.size()[0];     // n x n
         for(var i = 0; i < size; i++){
             m.subset(math.index(i, c), 0);
         }

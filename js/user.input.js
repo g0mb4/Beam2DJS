@@ -51,6 +51,7 @@ function updateUIList(list, type){
 function updatePointsList(list){
     var select = document.getElementById(list);
     removeListOptions(select);
+
     for (var i = 0; i < env.getPointsSize(); i++){
         var opt = document.createElement('option');
         opt.value = i;
@@ -95,21 +96,8 @@ function addUserBeam(){
     // (x1, y1) colosest point to (0, 0)
     if( d1 < d2 ){
         env.addObject(new Beam(env.getNextID(), x1, y1, x2, y2));
-
-        if(x2 * env.getDrawScale() > width - 30){
-            env.setDrawScale((width - 80) / (x2));
-        } else {
-            env.setDrawScale(200);
-        }
-
     } else {
         env.addObject(new Beam(env.getNextID(), x2, y2, x1, y1));
-
-        if(x1 * env.getDrawScale() > width - 30){
-            env.setDrawScale((width - 80) / (x1));
-        } else {
-            env.setDrawScale(200);
-        }
     }
     updateUIList("list_beams", "beam");
 }
@@ -188,6 +176,7 @@ function solve(){
         env.p1 = sol.p1;
         env.d = sol.d;
 
+        // orded is important !!!
         env.v = sol.generateDeflection();
         env.phi = sol.generateRotation();
 
@@ -271,6 +260,61 @@ function load_example1(){
         }
       ],
       "I": 0.00000573,
+      "E": 210000000000,
+      "dx": 0.001
+    });
+}
+
+function load_example2(){
+    load_example({
+      "objs": [
+        {
+          "id": 0,
+          "type": "beam",
+          "x1": 0,
+          "y1": 0,
+          "x2": 3.4,
+          "y2": 0
+        },
+        {
+          "id": 1,
+          "type": "beam",
+          "x1": 3.4,
+          "y1": 0,
+          "x2": 6.8,
+          "y2": 0
+        },
+        {
+          "id": 2,
+          "type": "support",
+          "support_type": "support_wrist",
+          "x": 0,
+          "y": 0,
+          "dir": "dir_y_plus"
+        },
+        {
+          "id": 3,
+          "type": "support",
+          "support_type": "support_trundle",
+          "x": 6.8,
+          "y": 0,
+          "dir": "dir_y_plus"
+        },
+        {
+          "id": 4,
+          "type": "load",
+          "load_type": "load_force",
+          "x1": 3.4,
+          "y1": 0,
+          "x2": 0,
+          "y2": 0,
+          "c_x1": -1985.9895764017592,
+          "c_y1": -2635.4971831560665,
+          "c_x2": 0,
+          "c_y2": 0
+        }
+      ],
+      "I": 0.00000328,
       "E": 210000000000,
       "dx": 0.001
     });

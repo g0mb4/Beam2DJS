@@ -25,7 +25,15 @@ class Beam2DEnvironment{
 
     show(){
         background(0, 0, 128);
-        translate(40, -80);
+        stroke(255, 255, 0);
+        strokeWeight(2);
+        line(10, height - 10, 40, height - 10);
+        line(10, height - 10, 10, height - 40);
+        strokeWeight(1);
+        text('x', 50, height - 5);
+        text('y', 10, height - 50);
+
+        translate(80, -80);
 
         for (var i = 0; i < this.objects.length; i++){
             if(this.objects[i].type == "beam"){
@@ -61,6 +69,7 @@ class Beam2DEnvironment{
         for (var i = 0; i < this.points.length; i++){
             var p = this.points[i];
 
+            text(p.x + ' m', p.x * this.drawScaleFactor, height + 55 - (p.y * this.drawScaleFactor));
             text('(' + i + ')', p.x * this.drawScaleFactor, height + 70 - (p.y * this.drawScaleFactor));
         }
     }
@@ -74,10 +83,6 @@ class Beam2DEnvironment{
 
         if(o.type == "beam"){
             this.updatePoints();
-
-            if(o.x2 * this.drawScaleFactor > width - 30){
-                this.drawScaleFactor = (width - 80) / (o.x2);
-            }
         }
     }
 
@@ -139,8 +144,8 @@ class Beam2DEnvironment{
         /* sort points of beam based on the distance to (0, 0)*/
         os.sort(function(a, b){
             if(a.type == "beam" && b.type == "beam"){
-                d1 = sqrt((a.x1) * (a.x1) + (a.y1) * (a.y1));
-                d2 = sqrt((b.x1) * (b.x1) + (b.y1) * (b.y1));
+                var d1 = sqrt((a.x1) * (a.x1) + (a.y1) * (a.y1));
+                var d2 = sqrt((b.x1) * (b.x1) + (b.y1) * (b.y1));
 
                 return d1-d2;
             } else {
@@ -174,6 +179,20 @@ class Beam2DEnvironment{
                     this.points.push(p2);
                 }
             }
+        }
+
+        var x_max = 0;
+        for(var i = 0; i < this.points.length; i++){
+            var x = this.points[i].x;
+            if(x > x_max){
+                x_max = x;
+            }
+        }
+
+        if(x_max * this.drawScaleFactor > width - 50){
+            this.drawScaleFactor = (width - 120) / (x_max);
+        } else {
+            this.drawScaleFactor = 200;
         }
     }
 
