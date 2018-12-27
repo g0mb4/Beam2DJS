@@ -94,7 +94,7 @@ function addUserBeam(){
 
     // (x1, y1) colosest point to (0, 0)
     if( d1 < d2 ){
-        env.addObject(new Beam(0, x1, y1, x2, y2));
+        env.addObject(new Beam(env.getNextID(), x1, y1, x2, y2));
 
         if(x2 * env.getDrawScale() > width - 30){
             env.setDrawScale((width - 80) / (x2));
@@ -103,7 +103,7 @@ function addUserBeam(){
         }
 
     } else {
-        env.addObject(new Beam(0, x2, y2, x1, y1));
+        env.addObject(new Beam(env.getNextID(), x2, y2, x1, y1));
 
         if(x1 * env.getDrawScale() > width - 30){
             env.setDrawScale((width - 80) / (x1));
@@ -122,10 +122,9 @@ function addUserSupport(){
         var type = document.querySelector('input[name="support_type"]:checked').value;
         var dir = document.querySelector('input[name="support_dir"]:checked').value;
 
-        env.addObject(new Support(0, p.x, p.y, type, dir));
+        env.addObject(new Support(env.getNextID(), p.x, p.y, type, dir));
         updateUIList("list_supports", "support");
     }
-
 }
 
 function addUserForceMag(){
@@ -139,7 +138,7 @@ function addUserForceMag(){
         var c_x = magnitude * cos(radians(angle));
         var c_y = magnitude * sin(radians(angle));
 
-        env.addObject(new Load(0, p.x, p.y, 0, 0, "load_force", c_x, c_y, 0, 0));
+        env.addObject(new Load(env.getNextID(), p.x, p.y, 0, 0, "load_force", c_x, c_y, 0, 0));
         updateUIList("list_loads", "load");
     }
 }
@@ -152,7 +151,7 @@ function addUserForceComp(){
         var c_x = parseFloat(document.getElementById('force_c_x').value);
         var c_y = parseFloat(document.getElementById('force_c_y').value);
 
-        env.addObject(new Load(0, p.x, p.y, 0, 0, "load_force", c_x, c_y, 0, 0));
+        env.addObject(new Load(env.getNextID(), p.x, p.y, 0, 0, "load_force", c_x, c_y, 0, 0));
         updateUIList("list_loads", "load");
     }
 }
@@ -164,7 +163,7 @@ function addUserMoment(){
     if(p != null){
         var mag = parseFloat(document.getElementById('moment_magnitude').value);
 
-        env.addObject(new Load(0, p.x, p.y, 0, 0, "load_moment", mag, 0, 0, 0));
+        env.addObject(new Load(env.getNextID(), p.x, p.y, 0, 0, "load_moment", mag, 0, 0, 0));
         updateUIList("list_loads", "load");
     }
 }
@@ -174,13 +173,97 @@ function solve(){
         var sol = new Beam2DSolver(env);
         var E = parseFloat(document.getElementById('solver_E').value);
         var I = parseFloat(document.getElementById('solver_I').value);
+        var dx = parseFloat(document.getElementById('solver_dx').value);
 
         sol.setI(I);
         sol.setE(E);
+        sol.setDX(dx);
 
         sol.solve();
 
+        env.K = sol.K;
+        env.p = sol.p;
+        env.d = sol.d;
         env.v = sol.v;
+
+        env.writeSolution();
         env.drawCharts();
     }
+}
+
+function load_structure(){
+    var txt = document.getElementById('text_load_save');
+    env.objects = [];
+
+    var obj = JSON.parse(txt.innerHTML);
+
+    for(var i = 0; i < obj.objs.length; i++){
+        env.addObjectJSON(obj.objs[i]);
+    }
+
+    document.getElementById('solver_I').value = obj.I;
+    document.getElementById('solver_E').value = obj.E;
+    document.getElementById('solver_dx').value = obj.dx;
+
+    updateUIList("list_beams", "beam");
+    updateUIList("list_supports", "support");
+    updateUIList("list_loads", "load");
+}
+
+function save_structure(){
+    var txt = document.getElementById('text_load_save');
+    var structure = {
+        objs: env.objects,
+        I : parseFloat(document.getElementById('solver_I').value),
+        E : parseFloat(document.getElementById('solver_E').value),
+        dx : parseFloat(document.getElementById('solver_dx').value)
+    };
+
+    var str = JSON.stringify(structure, null, 2);
+    txt.innerHTML = str;
+}
+
+function load_example(obj){
+    var txt = document.getElementById('text_load_save');
+    txt.innerHTML = JSON.stringify(obj, null, 2);
+    load_structure();
+}
+
+function load_example1(){
+    load_example({
+      "objs": [
+        {
+          "id": 0,
+          "type": "beam",
+          "x1": 0,
+          "y1": 0,
+          "x2": 1.9,
+          "y2": 0
+        },
+        {
+          "id": 1,
+          "type": "support",
+          "support_type": "support_fixed",
+          "x": 1.9,
+          "y": 0,
+          "dir": "dir_x_minus"
+        },
+        {
+          "id": 2,
+          "type": "load",
+          "load_type": "load_force",
+          "x1": 0,
+          "y1": 0,
+          "x2": 0,
+          "y2": 0,
+          "c_x1": 3473.2918522949863,
+          "c_y1": -3596.6990016932555,
+          "c_x2": 0,
+          "c_y2": 0
+        }
+      ],
+      "I": 0.00000573,
+      "E": 210000000000,
+      "dx": 0.001
+    });
 }

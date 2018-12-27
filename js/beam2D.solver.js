@@ -4,6 +4,7 @@ class Beam2DSolver{
         this.env = env;
         this.I = 1;
         this.E = 1;
+        this.dx = 1;
     }
 
     setI(I){
@@ -14,15 +15,19 @@ class Beam2DSolver{
         this.E = E;
     }
 
+    setDX(dx){
+        this.dx = dx;
+    }
+
     solve(){
         this.resolveStructure();
-        var K = this.createCompleteStiffnessMatrix();
+        this.K = this.createCompleteStiffnessMatrix();
 
-        var p = math.zeros(K._size[0], 1);    // n x 1
+        this.p = math.zeros(this.K._size[0], 1);    // n x 1
 
-        this.applyBoundaryConditions(p, K);
+        this.applyBoundaryConditions(this.p, this.K);
 
-        this.d = math.usolve(K, p);
+        this.d = math.lusolve(this.K, this.p);
 
         this.v = [];
         for(var i = 0; i < this.env.getPointsSize() - 1; i++){
@@ -31,7 +36,7 @@ class Beam2DSolver{
 
             var L = sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y));
 
-            for(var x = p1.x; x < p2.x; x += 0.1){
+            for(var x = p1.x; x < p2.x; x += this.dx){
                 var v = this.getvx(this.d, L, x);
 
                 this.v.push({ x: x, v: v._data[0]});

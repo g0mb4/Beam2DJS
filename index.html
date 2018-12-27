@@ -31,13 +31,32 @@
         </table>
 
         <div class="input-tab">
-            <button class="tablinks" onclick="openTab(event, 'Beam')">Beam</button>
-            <button class="tablinks" onclick="openTab(event, 'Support')">Support</button>
-            <button class="tablinks" onclick="openTab(event, 'Force')">Force</button>
-            <button class="tablinks" onclick="openTab(event, 'Moment')">Moment</button>
-            <button class="tablinks" onclick="openTab(event, 'Solver')">Solver</button>
+            <button class="tablinks" onclick="openTab(event, 'load_save_tab')">Load/Save</button>
+            <button class="tablinks" onclick="openTab(event, 'beam_tab')">Beam</button>
+            <button class="tablinks" onclick="openTab(event, 'support_tab')">Support</button>
+            <button class="tablinks" onclick="openTab(event, 'force_tab')">Force</button>
+            <button class="tablinks" onclick="openTab(event, 'moment_tab')">Moment</button>
+            <button class="tablinks" onclick="openTab(event, 'solver_tab')">Solver</button>
         </div>
-        <div id="Beam" class="tabcontent">
+        <div id="load_save_tab" class="tabcontent">
+          <h3>Load/Save</h3>
+          <table>
+              <tr>
+                  <td><button onclick="load_structure()">Load</button></td>
+              </tr>
+              <tr>
+                  <td><button onclick="save_structure()">Save</button></td>
+              </tr>
+              <tr>
+                  <td><br></td>
+              </tr>
+              <tr>
+                  <td><button onclick="load_example1()">Load Example 1 - Sziltan Floppy - PRG4SZ/1/0</button></td>
+              </tr>
+          </table><br>
+            <td><textarea id="text_load_save" rows="30" cols="50"></textarea></td>
+        </div>
+        <div id="beam_tab" class="tabcontent">
           <h3>Beam</h3>
           <table>
               <tr>
@@ -62,7 +81,7 @@
               </tr>
             </table>
         </div>
-        <div id="Support" class="tabcontent">
+        <div id="support_tab" class="tabcontent">
           <h3>Support</h3>
           <table>
               <tr>
@@ -93,7 +112,7 @@
               </tr>
             </table>
         </div>
-        <div id="Force" class="tabcontent">
+        <div id="force_tab" class="tabcontent">
           <h3>Force</h3>
           <table>
               <tr>
@@ -121,7 +140,7 @@
               </tr>
           </table>
         </div>
-        <div id="Moment" class="tabcontent">
+        <div id="moment_tab" class="tabcontent">
           <h3>Moment</h3>
           <table>
               <tr>
@@ -139,7 +158,7 @@
               </tr>
           </table>
         </div>
-        <div id="Solver" class="tabcontent">
+        <div id="solver_tab" class="tabcontent">
           <h3>Solver</h3>
           <table>
               <tr>
@@ -151,10 +170,16 @@
                   <td><input id="solver_E" value="210000000000"/> Pa</td>
               </tr>
               <tr>
+                  <td>dx</td>
+                  <td><input id="solver_dx" value="1e-3"/> m</td>
+              </tr>
+              <tr>
                   <td><button onclick="solve()">SOLVE!</button></td>
                   <td></td>
               </tr>
             </table>
+        </div>
+        <div id="solution_text">
         </div>
         <div id="chart_deflection">
         </div>
@@ -162,12 +187,23 @@
     </body>
     <script src="js/math.min.js"></script>
     <script src="js/p5.min.js"></script>
-    <script src="https://www.gstatic.com/charts/loader.js"></script>
-	<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML'>
+        MathJax.Hub.Config({
+          tex2jax: {
+            inlineMath: [['$','$'], ['\\(','\\)']],
+            processEscapes: true
+          }
+        });
+    </script>
     <script src="js/beam2D.objects.js"></script>
     <script src="js/beam2D.solver.js"></script>
     <script src="js/beam2D.env.js"></script>
     <script src="js/globals.js"></script>
     <script src="js/user.input.js"></script>
     <script src="js/main.js"></script>
+    <script src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+        google.load('visualization', '1.0', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(env.drawCharts);
+    </script>
 </html>

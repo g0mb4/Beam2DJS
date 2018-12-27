@@ -11,6 +11,9 @@ class Beam2DEnvironment{
 
         this.drawScaleFactor = 200;
 
+        this.K = [];
+        this.p = [];
+        this.d = [];
         this.v = [];
         this.phi = [];
     }
@@ -57,12 +60,36 @@ class Beam2DEnvironment{
         }
     }
 
+    getNextID(){
+        return this.objectID++;
+    }
+
     addObject(o){
-        o.id = this.objectID++;
         this.objects.push(o);
 
         if(o.type == "beam"){
             this.updatePoints();
+
+            if(o.x2 * this.drawScaleFactor > width - 30){
+                this.drawScaleFactor = (width - 80) / (o.x2);
+            }
+        }
+    }
+
+    addObjectJSON(o){
+        if(o.type == "beam"){
+            this.addObject(new Beam(o.id, o.x1, o.y1, o.x2, o.y2));
+        } else if(o.type == "support"){
+            this.addObject(new Support(o.id, o.x, o.y, o.support_type, o.dir));
+        } else if(o.type == "load"){
+            this.addObject(new Load(o.id, o.x1, o.x2, o.x2, o.y2, o.load_type, o.c_x1, o.c_y1, o.c_x2, o.c_y2));
+        }
+
+        this.objectID = 0;
+        for(var i = 0; i < this.objects.length; i++){
+            if(this.objects[i].id >= this.objectID){
+                this.objectID = this.objects[i].id + 1;
+            }
         }
     }
 
@@ -165,9 +192,76 @@ class Beam2DEnvironment{
         }
     }
 
-    drawCharts(){
-        google.charts.load('current', {'packages':['corechart']});
+    writeSolution(){
+        var div = document.getElementById('solution_text');
 
+        // p
+        var str = "\\( \\underline{p} ="
+        str += "\\begin{pmatrix}";
+        for(var i = 0; i < this.p._size[0] / 2; i++){
+            str += "F_{y" + i + "} & \\\\";
+            str += "M_{z" + i + "}";
+
+            if(i < this.p._size[0] / 2 - 1){
+                str += " & \\\\";
+            }
+        }
+        str += " \\end{pmatrix} =";
+
+        str += "\\begin{pmatrix}";
+        this.p.map(function (value, index, matrix) {
+            str += value;
+            if(index[0] < matrix._size[0] - 1){
+                str += " & \\\\";
+            }
+        });
+        str += " \\end{pmatrix}";
+
+        str += "\\underline{\\underline{K}} ="
+        str += "\\begin{pmatrix}";
+        for(var i = 0; i < this.K._size[0]; i++){
+            for(var j = 0; j < this.K._size[1]; j++){
+                str += math.subset(this.K, math.index(i, j));
+
+                if(j < this.K._size[1] - 1){
+                    str += " & ";
+                }
+            }
+
+            if(i < this.K._size[0] - 1){
+                str += " \\\\";
+            }
+        }
+        str += " \\end{pmatrix} \\\\";
+
+        // d
+        str += "\\underline{d} ="
+        str += "\\begin{pmatrix}";
+        for(var i = 0; i < this.d._size[0] / 2; i++){
+            str += "v_" + i + " & \\\\";
+            str += "\\varphi_" + i;
+
+            if(i < this.d._size[0] / 2 - 1){
+                str += " & \\\\";
+            }
+        }
+        str += " \\end{pmatrix} =";
+
+        str += "\\begin{pmatrix}";
+        this.d.map(function (value, index, matrix) {
+            str += value;
+            if(index[0] < matrix._size[0] - 1){
+                str += " & \\\\";
+            }
+        });
+
+        str += " \\end{pmatrix} \\)";
+
+        div.innerHTML += str;
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "solution_text"]);
+    }
+
+    drawCharts(){
         var vData = [["x", "v"]];
         for(var i = 0; i < this.v.length; i++){
             vData.push([this.v[i].x, this.v[i].v]);
