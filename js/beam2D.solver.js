@@ -48,11 +48,13 @@ class Beam2DSolver{
 
             for(var x = p1.x, x_loc = 0.0; x <= p2.x; x += this.dx, x_loc += this.dx){
                 var d_i = math.zeros(4, 1);
-                d_i._data[0][0] = this.d._data[i    ][0];
-                d_i._data[1][0] = this.d._data[i + 1][0];
-                d_i._data[2][0] = this.d._data[i + 2][0];
-                d_i._data[3][0] = this.d._data[i + 3][0];
-
+                /* shift local d
+                   0 -> 0 1 2 3
+                   1 -> 2 3 4 5 ...
+                 */
+                for(var n = 0; n < 4; n++){
+                    d_i._data[n][0] = this.d._data[(i * 2) + n][0]
+                }
                 var v_dx = this._v(d_i, L, x_loc);
 
                 this.v.push({ x: x, v: v_dx._data[0]});
