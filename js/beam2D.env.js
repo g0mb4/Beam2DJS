@@ -11,9 +11,14 @@ class Beam2DEnvironment{
 
         this.drawScaleFactor = 200;
 
-        this.K = [];
-        this.p = [];
+        this.K0 = [];
+        this.K1 = [];
+        this.p0 = [];
+        this.p1 = [];
         this.d = [];
+
+        this.T = [];
+        this.M = [];
         this.v = [];
         this.phi = [];
     }
@@ -192,43 +197,41 @@ class Beam2DEnvironment{
         }
     }
 
+    clearSolution(){
+        document.getElementById('solution_text').innerHTML = "";
+        document.getElementById('chart_shear').style.display = "none";
+        document.getElementById('chart_bending_moment').style.display = "none";
+        document.getElementById('chart_deflection').style.display = "none";
+        document.getElementById('chart_rotation').style.display = "none";
+    }
+
     writeSolution(){
         var div = document.getElementById('solution_text');
 
         // p
-        var str = "\\( \\underline{p} ="
+        var str = "\\( \\underline{p_1} ="
         str += "\\begin{pmatrix}";
-        for(var i = 0; i < this.p._size[0] / 2; i++){
-            str += "F_{y" + i + "} & \\\\";
-            str += "M_{z" + i + "}";
-
-            if(i < this.p._size[0] / 2 - 1){
-                str += " & \\\\";
-            }
-        }
-        str += " \\end{pmatrix} =";
-
-        str += "\\begin{pmatrix}";
-        this.p.map(function (value, index, matrix) {
+        this.p1.map(function (value, index, matrix) {
             str += value;
+
             if(index[0] < matrix._size[0] - 1){
-                str += " & \\\\";
+                str += "\\\\";
             }
         });
         str += " \\end{pmatrix}";
 
-        str += "\\underline{\\underline{K}} ="
+        str += "\\underline{\\underline{K_1}} ="
         str += "\\begin{pmatrix}";
-        for(var i = 0; i < this.K._size[0]; i++){
-            for(var j = 0; j < this.K._size[1]; j++){
-                str += math.subset(this.K, math.index(i, j));
+        for(var i = 0; i < this.K1._size[0]; i++){
+            for(var j = 0; j < this.K1._size[1]; j++){
+                str += math.subset(this.K1, math.index(i, j));
 
-                if(j < this.K._size[1] - 1){
+                if(j < this.K1._size[1] - 1){
                     str += " & ";
                 }
             }
 
-            if(i < this.K._size[0] - 1){
+            if(i < this.K1._size[0] - 1){
                 str += " \\\\";
             }
         }
@@ -238,11 +241,11 @@ class Beam2DEnvironment{
         str += "\\underline{d} ="
         str += "\\begin{pmatrix}";
         for(var i = 0; i < this.d._size[0] / 2; i++){
-            str += "v_" + i + " & \\\\";
+            str += "v_" + i + "\\\\";
             str += "\\varphi_" + i;
 
             if(i < this.d._size[0] / 2 - 1){
-                str += " & \\\\";
+                str += " \\\\";
             }
         }
         str += " \\end{pmatrix} =";
@@ -250,18 +253,89 @@ class Beam2DEnvironment{
         str += "\\begin{pmatrix}";
         this.d.map(function (value, index, matrix) {
             str += value;
+            if(index[0] % 2 == 0){
+                str += " \\quad \\mathrm{m}";
+            } else {
+                str += " \\quad \\mathrm{rad}";
+            }
+
             if(index[0] < matrix._size[0] - 1){
-                str += " & \\\\";
+                str += " \\\\";
             }
         });
 
+        str += " \\end{pmatrix} \\quad";
+
+        str += "\\underline{p_0} ="
+        str += "\\begin{pmatrix}";
+        for(var i = 0; i < this.p0._size[0] / 2; i++){
+            str += "F_{y" + i + "} \\\\";
+            str += "M_{z" + i + "}";
+
+            if(i < this.p0._size[0] / 2 - 1){
+                str += " \\\\";
+            }
+        }
+        str += " \\end{pmatrix} =";
+
+        str += "\\begin{pmatrix}";
+        this.p0.map(function (value, index, matrix) {
+            str += value;
+
+            if(index[0] % 2 == 0){
+                str += " \\quad \\mathrm{N}";
+            } else {
+                str += " \\quad \\mathrm{Nm}";
+            }
+
+            if(index[0] < matrix._size[0] - 1){
+                str += "\\\\";
+            }
+        });
         str += " \\end{pmatrix} \\)";
 
-        div.innerHTML += str;
+        div.innerHTML = str;
         MathJax.Hub.Queue(["Typeset", MathJax.Hub, "solution_text"]);
     }
 
     drawCharts(){
+        document.getElementById('chart_shear').style.display = "block";
+        document.getElementById('chart_bending_moment').style.display = "block";
+        document.getElementById('chart_deflection').style.display = "block";
+        document.getElementById('chart_rotation').style.display = "block";
+
+        var TData = [["x", "T"]];
+        for(var i = 0; i < this.T.length; i++){
+            TData.push([this.T[i].x, this.T[i].T]);
+        }
+
+        var TChartData = google.visualization.arrayToDataTable(TData);
+        var TChartOptions = {
+          title: 'Shear',
+          legend: 'none',
+          hAxis: { title: 'x, m' },
+          vAxis: { title: 'T, N' }
+        };
+
+        var TChart = new google.visualization.AreaChart(document.getElementById('chart_shear'));
+        TChart.draw(TChartData, TChartOptions);
+
+        var MData = [["x", "M"]];
+        for(var i = 0; i < this.M.length; i++){
+            MData.push([this.M[i].x, this.M[i].M]);
+        }
+
+        var MChartData = google.visualization.arrayToDataTable(MData);
+        var MChartOptions = {
+            title: 'Bending moment',
+            legend: 'none',
+            hAxis: { title: 'x, m' },
+            vAxis: { title: 'Mz, Nm' }
+        };
+
+        var MChart = new google.visualization.AreaChart(document.getElementById('chart_bending_moment'));
+        MChart.draw(MChartData, MChartOptions);
+
         var vData = [["x", "v"]];
         for(var i = 0; i < this.v.length; i++){
             vData.push([this.v[i].x, this.v[i].v]);
@@ -269,12 +343,31 @@ class Beam2DEnvironment{
 
         var vChartData = google.visualization.arrayToDataTable(vData);
         var vChartOptions = {
-          title: 'Deflection',
-          curveType: 'function',
-          legend: { position: 'bottom' }
+            title: 'Deflection',
+            curveType: 'function',
+            legend: 'none',
+            hAxis: { title: 'x, m' },
+            vAxis: { format: 'scientific', title: 'v, m' }
         };
 
-        var chart = new google.visualization.LineChart(document.getElementById('chart_deflection'));
-        chart.draw(vChartData, vChartOptions);
+        var vChart = new google.visualization.LineChart(document.getElementById('chart_deflection'));
+        vChart.draw(vChartData, vChartOptions);
+
+        var phiData = [["x", "phi"]];
+        for(var i = 0; i < this.phi.length; i++){
+            phiData.push([this.phi[i].x, this.phi[i].phi]);
+        }
+
+        var phiChartData = google.visualization.arrayToDataTable(phiData);
+        var phiChartOptions = {
+            title: 'Rotation',
+            curveType: 'function',
+            legend: 'none',
+            hAxis: { title: 'x, m' },
+            vAxis: { format: 'scientific', title: 'phi, rad' }
+        };
+
+        var phiChart = new google.visualization.LineChart(document.getElementById('chart_rotation'));
+        phiChart.draw(phiChartData, phiChartOptions);
     }
 }

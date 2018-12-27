@@ -170,6 +170,7 @@ function addUserMoment(){
 
 function solve(){
     if(env != null){
+        env.clearSolution();
         var sol = new Beam2DSolver(env);
         var E = parseFloat(document.getElementById('solver_E').value);
         var I = parseFloat(document.getElementById('solver_I').value);
@@ -181,10 +182,17 @@ function solve(){
 
         sol.solve();
 
-        env.K = sol.K;
-        env.p = sol.p;
+        env.K0 = sol.K0;
+        env.K1 = sol.K1;
+        env.p0 = sol.p0;
+        env.p1 = sol.p1;
         env.d = sol.d;
-        env.v = sol.v;
+
+        env.v = sol.generateDeflection();
+        env.phi = sol.generateRotation();
+
+        env.T = sol.generateShear();
+        env.M = sol.generateBendingMoment();
 
         env.writeSolution();
         env.drawCharts();
