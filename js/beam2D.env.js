@@ -63,6 +63,7 @@ class Beam2DEnvironment{
         }
 
         fill(255, 255, 0);
+        stroke(255, 255, 0);
         textSize(14);
         textAlign(CENTER);
         strokeWeight(1);

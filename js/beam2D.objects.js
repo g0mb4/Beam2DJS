@@ -125,22 +125,33 @@ class Load
             stroke(255, 0, 0);
             fill(255, 0, 0);
         } else {
-            stroke(255, 255, 0);
-            fill(255, 255, 0);
+            stroke(0, 255, 0);
+            fill(0, 255, 0);
         }
 
         push();
         translate(this.x1 * scale, height - (this.y1 * scale));
 
         if(this.load_type == "load_force"){
-            line(0, 0, this.c_x1, -this.c_y1);
+            var angle = Math.atan2(this.c_y1, this.c_x1);
+            rotate(angle + PI / 2);
+            line(0, 0, 50, 0);
+            triangle(  50, 0,
+                       40,-3,
+                       40, 3);
         } if(this.load_type == "load_moment"){
             noFill();
             strokeWeight(3);
             if(this.c_x1 < 0) {
-                arc(0, 0, 50, 50, PI, TWO_PI, OPEN);
+                arc(0, 0, 40, 40, radians(60), radians(300), OPEN);
+                triangle(  20 * cos(radians(300)), 20 * sin(radians(300)),
+                           20 * cos(radians(315)), 20 * sin(radians(315)),
+                           23 * cos(radians(300)), 23 * sin(radians(300)));
             } else {
-                arc(0, 0, 50, 50, 0, PI, OPEN);
+                arc(0, 0, 40, 40, radians(240), radians(120), OPEN);
+                triangle(  20 * cos(radians(240)), 20 * sin(radians(240)),
+                           20 * cos(radians(225)), 20 * sin(radians(225)),
+                           23 * cos(radians(240)), 23 * sin(radians(240)));
             }
         }
         pop();
