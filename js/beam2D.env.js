@@ -291,7 +291,7 @@ class Beam2DEnvironment{
         str += "\\begin{pmatrix}";
         for(var i = 0; i < this.p0._size[0] / 2; i++){
             str += "F_{y" + i + "} \\\\";
-            str += "M_{z" + i + "}";
+            str += "M_{hz" + i + "}";
 
             if(i < this.p0._size[0] / 2 - 1){
                 str += " \\\\";
@@ -332,8 +332,39 @@ class Beam2DEnvironment{
         });
         str += " \\end{pmatrix} \\)";
 
-        div.innerHTML = str;
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "solution_text"]);
+        //div.innerHTML = str;
+        //MathJax.Hub.Queue(["Typeset", MathJax.Hub, "solution_text"]);
+
+        var table = document.getElementById("table_results");
+        table.innerHTML = "";
+        var size = this.d.size()[0];
+        var k = 0;
+        for(var i = 0; i < size; i += 2){
+            var row1 = table.insertRow(i);
+            var row2 = table.insertRow(i + 1);
+
+            var F_n = row1.insertCell(0);
+            var F_v = row1.insertCell(1);
+            var v_n = row1.insertCell(2);
+            var v_v = row1.insertCell(3);
+
+            var M_n = row2.insertCell(0);
+            var M_v = row2.insertCell(1);
+            var phi_n = row2.insertCell(2);
+            var phi_v = row2.insertCell(3);
+
+            v_n.innerHTML = "v" + k;
+            v_v.innerHTML = this.d._data[i][0] + " m";
+            F_n.innerHTML = "Fy" + k;
+            F_v.innerHTML = this.p0_nodist._data[i][0] + " N";
+
+            phi_n.innerHTML = "phi" + k;
+            phi_v.innerHTML = this.d._data[i + 1][0] + " rad";
+            M_n.innerHTML = "Mhz" + k;
+            M_v.innerHTML = this.p0_nodist._data[i + 1][0] + " Nm";
+
+            k++;
+        }
     }
 
     drawCharts(){
@@ -370,7 +401,7 @@ class Beam2DEnvironment{
             width: 800,
             legend: 'none',
             hAxis: { title: 'x, m' },
-            vAxis: { title: 'Mz, Nm' }
+            vAxis: { title: 'Mhz, Nm' }
         };
 
         var MChart = new google.visualization.AreaChart(document.getElementById('chart_bending_moment'));

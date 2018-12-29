@@ -7,18 +7,6 @@ class Beam2DSolver{
         this.dx = 1;
     }
 
-    setI(I){
-        this.I = I;
-    }
-
-    setE(E){
-        this.E = E;
-    }
-
-    setDX(dx){
-        this.dx = dx;
-    }
-
     solve(){
         this.resolveStructure();
         this.K0 = this.createCompleteStiffnessMatrix();
@@ -32,11 +20,198 @@ class Beam2DSolver{
         this.p0 = math.multiply(this.K0, this.d);       // calculaton of the reaction forces
     }
 
-    generateDeflection(){
-        this.v = [];
+    resolveStructure(){
+        this.structure = [];
+
+        /* add supports, forces and moment */
+        for(var i = 0; i < this.env.getPointsSize(); i++){
+            var p = this.env.getPoint(i);
+
+            var pointObject = {
+                point : { x: p.x, y: p.y },
+                pointData : [],
+            }
+
+            for(var j = 0; j < this.env.getObjectsSize(); j++){
+                var o = this.env.getObjectIndex(j);
+                if(o.type == "support"){
+                    if(o.x == p.x && o.y == p.y){
+                        pointObject.pointData.push(o);
+                    }
+                } else if(o.type == "load"){
+                    if(o.load_type == "load_force" || o.load_type == "load_moment"){
+                        if(o.x1 == p.x && o.y1 == p.y){
+                            pointObject.pointData.push(o);
+                        }
+                    }
+                }
+            }
+            this.structure.push(pointObject);
+        }
+
+        /* add distributed loads */
         for(var i = 0; i < this.env.getPointsSize() - 1; i++){
             var p1 = this.env.getPoint(i);
             var p2 = this.env.getPoint(i + 1);
+
+            for(var j = 0; j < this.env.getObjectsSize(); j++){
+                var o = this.env.getObjectIndex(j);
+                if(o.type == "load"){
+                    if(o.load_type == "load_dist_const"){
+                        this.structure[i].pointData.push(o);    // for Ty, Mhz diagrams
+
+                        if(o.x1 == p.x){
+                            var L = sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y));
+                            var F = (o.c_y1 * L) / 2;       // calculate equivalent force (q * L) / 2
+                            var M = (o.c_y1 * L * L) / 12;  // calculate equivalent moment (q * L * L) / 12
+
+                            this.structure[i    ].push(new Load(-1, p1.x, p1.y, 0, 0, "load_force", 0, F, 0, 0));
+                            this.structure[i + 1].push(new Load(-1, p2.x, p2.y, 0, 0, "load_force", 0, F, 0, 0));
+
+                            this.structure[i    ].push(new Load(-1, p1.x, p1.y, 0, 0, "load_moment", -M, 0, 0, 0));  // M is negative !!
+                            this.structure[i + 1].push(new Load(-1, p2.x, p2.y, 0, 0, "load_moment",  M, 0, 0, 0));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    createStiffnessMatrix(p1, p2){
+        var L = sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y));
+        var K_c = math.matrix([[    12,     6 * L,    -12,     6 * L ],
+                               [ 6 * L, 4 * L * L, -6 * L, 2 * L * L ],
+                               [   -12,    -6 * L,     12,    -6 * L ],
+                               [ 6 * L, 2 * L * L, -6 * L, 4 * L * L ]]);
+
+        var IE = (this.I * this.E) / (L * L * L);
+        var K = math.multiply(IE, K_c);
+
+        return K;
+    }
+
+    createCompleteStiffnessMatrix(){
+        var Ks = [];
+        for(var i = 0; i < this.structure.length - 1; i++){
+            var p1 = this.structure[i].point;
+            var p2 = this.structure[i + 1].point;
+            var K = this.createStiffnessMatrix(p1, p2);
+            Ks.push(K);
+        }
+
+        var K = Ks[0];
+        /* add matricies
+            K1 = [k1_11 k1_12] K1 = [k2_11 k2_12],  size(kn_xy) = [4x4]
+                 [k1_21 k1_22]      [k2_21 k2_22]
+
+           K = [k1_11       k1_12         0]
+               [k1_21 (k1_22 + k2_11) k2_12]
+               [  0        k2_21      k2_22]
+        */
+
+        for(var i = 1; i < Ks.length; i++){
+            var K_i = Ks[i];
+            var s_K = K.size()[0];
+            K.resize([s_K + 2, s_K + 2]);
+
+            for(var n = 0; n < 4; n++){
+                for(var m = 0; m < 4; m++){
+                    K._data[(s_K - 2) + n][(s_K - 2) + m] += K_i._data[n][m];
+                }
+            }
+        }
+
+        return K;
+    }
+
+    _zeroRow(m, r){
+        var size = m.size()[1];     // n x n
+        for(var i = 0; i < size; i++){
+            m.subset(math.index(r, i), 0);
+        }
+    }
+
+    _zeroCol(m, c){
+        var size = m.size()[0];     // n x n
+        for(var i = 0; i < size; i++){
+            m.subset(math.index(i, c), 0);
+        }
+    }
+
+    applyBoundaryConditions(p, K){
+        // first add the loads
+        for(var i = 0; i < this.structure.length; i++){
+            var pointObject = this.structure[i];
+
+            var pos_v   = i * 2;
+            var pos_phi = (i * 2) + 1;
+
+            for(var j = 0; j < pointObject.pointData.length; j++){
+                var obj = pointObject.pointData[j];
+
+                if(obj.type == "load"){
+                    if(obj.load_type == "load_force") {
+                        p._data[pos_v][0] += obj.c_y1;      // add force
+                    } else if(obj.load_type == "load_moment") {
+                        p._data[pos_phi][0] += obj.c_x1;    // add moment
+                    }
+                }
+            }
+        }
+
+        // then the suports
+        for(var i = 0; i < this.structure.length; i++){
+            var pointObject = this.structure[i];
+
+            var pos_v   = i * 2;
+            var pos_phi = (i * 2) + 1;
+
+            for(var j = 0; j < pointObject.pointData.length; j++){
+                var obj = pointObject.pointData[j];
+
+                if(obj.type == "support") {
+                    if(obj.support_type == "support_wrist") {
+                        if(obj.dir == "dir_y_plus" || obj.dir == "dir_y_minus"){
+                            p._data[pos_v][0] = 0;
+
+                            this._zeroRow(K, pos_v);
+                            this._zeroCol(K, pos_v);
+                            K._data[pos_v][pos_v] = 1;
+                        } else {
+                            /* TODO */
+                        }
+                    } else if(obj.support_type == "support_trundle") {
+                        if(obj.dir == "dir_y_plus" || obj.dir == "dir_y_minus"){
+                            p._data[pos_v][0] = 0;
+
+                            this._zeroRow(K, pos_v);
+                            this._zeroCol(K, pos_v);
+                            K._data[pos_v][pos_v] = 1;
+                        } else {
+                            /* TODO */
+                        }
+                    } else if(obj.support_type == "support_fixed") {
+                        p._data[pos_v][0] = 0;
+                        p._data[pos_phi][0] = 0;
+
+                        this._zeroRow(K, pos_v);
+                        this._zeroCol(K, pos_v);
+                        K._data[pos_v][pos_v] = 1;
+
+                        this._zeroRow(K, pos_phi);
+                        this._zeroCol(K, pos_phi);
+                        K._data[pos_phi][pos_phi] = 1;
+                    }
+                }
+            }
+        }
+    }
+
+    generateDeflection(){
+        this.v = [];
+        for(var i = 0; i < this.structure.length - 1; i++){
+            var p1 = this.structure[i    ].point;
+            var p2 = this.structure[i + 1].point;
 
             var L = sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y));
 
@@ -88,15 +263,15 @@ class Beam2DSolver{
         for(var i = 0; i < this.structure.length; i++){
             var pos_F = i * 2;
             var pos_M = (i * 2) + 1;
-            var conds = this.structure[i];
+            var objs = this.structure[i].pointData;
 
-            for(var j = 0; j < conds.length; j++){
-                var cond = conds[j];
-                if(cond.id == -1 && cond.type == "load"){
-                    if(cond.load_type == "load_force") {
-                        this.p0_nodist._data[pos_F][0] -= cond.c_y1;
-                    } else if(cond.load_type == "load_moment") {
-                        this.p0_nodist._data[pos_M][0] -= cond.c_x1;
+            for(var j = 0; j < objs.length; j++){
+                var obj = objs[j];
+                if(obj.id == -1 && obj.type == "load"){
+                    if(obj.load_type == "load_force") {
+                        this.p0_nodist._data[pos_F][0] -= obj.c_y1;
+                    } else if(obj.load_type == "load_moment") {
+                        this.p0_nodist._data[pos_M][0] -= obj.c_x1;
                     }
                 }
             }
@@ -105,9 +280,9 @@ class Beam2DSolver{
 
     generateShear(){
         this.T = [];
-        for(var i = 0; i < this.env.getPointsSize() - 1; i++){
-            var p1 = this.env.getPoint(i);
-            var p2 = this.env.getPoint(i + 1);
+        for(var i = 0; i < this.structure.length - 1; i++){
+            var p1 = this.structure[i    ].point;
+            var p2 = this.structure[i + 1].point;
 
             var x = p1.x;
             for(; x <= p2.x; x += this.dx){
@@ -134,11 +309,11 @@ class Beam2DSolver{
         }
 
         /* add forces from calculated p0 */
-        for(var j = 0; j < this.env.getPointsSize(); j++){
-            var p = this.env.getPoint(j);
+        for(var i = 0; i < this.structure.length; i++){
+            var p = this.structure[i].point;
 
             if(x >= p.x){
-                 T += math.subset(this.p0_nodist, math.index(j * 2, 0));   // add force
+                 T += this.p0_nodist._data[i * 2][0];   // add force
             }
         }
 
@@ -147,16 +322,13 @@ class Beam2DSolver{
 
     _q(x){
         var q = 0;
-        for(var i = 0; i < this.env.getPointsSize(); i++){
-            var pointObjects = [];
-            var p = this.env.getPoint(i);
-            for(var j = 0; j < this.env.getObjectsSize(); j++){
-                var o = this.env.getObjectIndex(j);
-                if(o.type == "load"){
-                    if(o.load_type == "load_dist_const"){
-                        if(x >= o.x1 && x <= o.x2){
-                            q = o.c_y1;
-                            return q;
+        for(var i = 0; i < this.structure.length; i++){
+            for(var j = 0; j < this.structure[i].pointData.length; j++){
+                var obj = this.structure[i].pointData[j];
+                if(obj.type == "load"){
+                    if(obj.load_type == "load_dist_const"){
+                        if(x >= obj.x1 && x <= obj.x2){
+                            return obj.c_y1;
                         }
                     }
                 }
@@ -167,9 +339,9 @@ class Beam2DSolver{
 
     generateBendingMoment(){
         this.M = [];
-        for(var i = 0; i < this.env.getPointsSize() - 1; i++){
-            var p1 = this.env.getPoint(i);
-            var p2 = this.env.getPoint(i + 1);
+        for(var i = 0; i < this.structure.length - 1; i++){
+            var p1 = this.structure[i    ].point;
+            var p2 = this.structure[i + 1].point;
 
             var x = p1.x;
             for(; x <= p2.x; x += this.dx){
@@ -198,188 +370,15 @@ class Beam2DSolver{
         }
 
         /* add moments from calculated p0 */
-        for(var j = 0; j < this.env.getPointsSize(); j++){
-            var p = this.env.getPoint(j);
+        for(var i = 0; i < this.structure.length; i++){
+            var p = this.structure[i].point;
 
             /* if x is beyond the point */
             if(x >= p.x){
-                M += math.subset(this.p0_nodist, math.index(j * 2 + 1, 0));  // add momentum
+                M += this.p0_nodist._data[i * 2 + 1][0];
             }
         }
 
         return M;
-    }
-
-    resolveStructure(){
-        this.structure = [];
-
-        /* add supports, forces and moment */
-        for(var i = 0; i < this.env.getPointsSize(); i++){
-            var pointObjects = [];
-            var p = this.env.getPoint(i);
-            for(var j = 0; j < this.env.getObjectsSize(); j++){
-                var o = this.env.getObjectIndex(j);
-                if(o.type == "support"){
-                    if(o.x == p.x && o.y == p.y){
-                        pointObjects.push(o);
-                    }
-                } else if(o.type == "load"){
-                    if(o.load_type == "load_force" || o.load_type == "load_moment"){
-                        if(o.x1 == p.x && o.y1 == p.y){
-                            pointObjects.push(o);
-                        }
-                    }
-                }
-            }
-
-            this.structure.push(pointObjects);
-        }
-
-        /* add distributed loads */
-        for(var i = 0; i < this.env.getPointsSize() - 1; i++){
-            var p1 = this.env.getPoint(i);
-            var p2 = this.env.getPoint(i + 1);
-            for(var j = 0; j < this.env.getObjectsSize(); j++){
-                var o = this.env.getObjectIndex(j);
-                if(o.type == "load"){
-                    if(o.load_type == "load_dist_const"){
-                        /* TODO: check if dist is in more than 2 nodes */
-                        if(o.x1 == p1.x && o.y1 == p1.y){
-                            var L = sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y));
-                            var F = (o.c_y1 * L) / 2;       // calculate equivalent force (q * L) / 2
-                            var M = (o.c_y1 * L * L) / 12;  // calculate equivalent moment (q * L * L) / 12
-
-                            this.structure[i    ].push(new Load(-1, p1.x, p1.y, 0, 0, "load_force", 0, F, 0, 0));
-                            this.structure[i + 1].push(new Load(-1, p2.x, p2.y, 0, 0, "load_force", 0, F, 0, 0));
-
-                            this.structure[i    ].push(new Load(-1, p1.x, p1.y, 0, 0, "load_moment", -M, 0, 0, 0));  // M is negative !!
-                            this.structure[i + 1].push(new Load(-1, p2.x, p2.y, 0, 0, "load_moment",  M, 0, 0, 0));
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    createStiffnessMatrix(p1, p2){
-        var L = sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y));
-        var K_c = math.matrix([[    12,     6 * L,    -12,     6 * L ],
-                               [ 6 * L, 4 * L * L, -6 * L, 2 * L * L ],
-                               [   -12,    -6 * L,     12,    -6 * L ],
-                               [ 6 * L, 2 * L * L, -6 * L, 4 * L * L ]]);
-
-        var IE = (this.I * this.E) / (L * L * L);
-        var K = math.multiply(IE, K_c);
-
-        return K;
-    }
-
-    createCompleteStiffnessMatrix(){
-        var Ks = [];
-        for(var i = 0; i < this.env.getPointsSize() - 1; i++){
-            var p1 = this.env.getPoint(i);
-            var p2 = this.env.getPoint(i + 1);
-            var K = this.createStiffnessMatrix(p1, p2);
-            Ks.push(K);
-        }
-
-        var K = Ks[0];
-        // add matricies
-        for(var i = 1; i < Ks.length; i++){
-            var K_i = Ks[i];
-            var s_K = K.size()[0];
-            K.resize([s_K + 2, s_K + 2]);
-
-            for(var n = 0; n < 4; n++){
-                for(var m = 0; m < 4; m++){
-                    K._data[(s_K - 2) + n][(s_K - 2) + m] += K_i._data[n][m];
-                }
-            }
-        }
-
-        return K;
-    }
-
-    _zeroRow(m, r){
-        var size = m.size()[1];     // n x n
-        for(var i = 0; i < size; i++){
-            m.subset(math.index(r, i), 0);
-        }
-    }
-
-    _zeroCol(m, c){
-        var size = m.size()[0];     // n x n
-        for(var i = 0; i < size; i++){
-            m.subset(math.index(i, c), 0);
-        }
-    }
-
-    applyBoundaryConditions(p, K){
-        // first add the loads
-        for(var i = 0; i < this.structure.length; i++){
-            var conds = this.structure[i];
-
-            var pos_v   = i * 2;
-            var pos_phi = (i * 2) + 1;
-
-            for(var j = 0; j < conds.length; j++){
-                var cond = conds[j];
-
-                if(cond.type == "load"){
-                    if(cond.load_type == "load_force") {
-                        p._data[pos_v][0] += cond.c_y1;
-                    } else if(cond.load_type == "load_moment") {
-                        p._data[pos_phi][0] += cond.c_x1;
-                    }
-                }
-            }
-        }
-
-        // then the suports
-        for(var i = 0; i < this.structure.length; i++){
-            var conds = this.structure[i];
-
-            var pos_v   = i * 2;
-            var pos_phi = (i * 2) + 1;
-
-            for(var j = 0; j < conds.length; j++){
-                var cond = conds[j];
-
-                if(cond.type == "support") {
-                    if(cond.support_type == "support_wrist") {
-                        if(cond.dir == "dir_y_plus" || cond.dir == "dir_y_minus"){
-                            p.subset(math.index(pos_v,   0), 0);
-
-                            this._zeroRow(K, pos_v);
-                            this._zeroCol(K, pos_v);
-                            K.subset(math.index(pos_v, pos_v), 1);
-                        } else {
-                            /* TODO */
-                        }
-                    } else if(cond.support_type == "support_trundle") {
-                        if(cond.dir == "dir_y_plus" || cond.dir == "dir_y_minus"){
-                            p.subset(math.index(pos_v,   0), 0);
-
-                            this._zeroRow(K, pos_v);
-                            this._zeroCol(K, pos_v);
-                            K.subset(math.index(pos_v, pos_v), 1);
-                        } else {
-                            /* TODO */
-                        }
-                    } else if(cond.support_type == "support_fixed") {
-                        p.subset(math.index(pos_v,   0), 0);
-                        p.subset(math.index(pos_phi, 0), 0);
-
-                        this._zeroRow(K, pos_v);
-                        this._zeroCol(K, pos_v);
-                        K.subset(math.index(pos_v, pos_v), 1);
-
-                        this._zeroRow(K, pos_phi);
-                        this._zeroCol(K, pos_phi);
-                        K.subset(math.index(pos_phi, pos_phi), 1);
-                    }
-                }
-            }
-        }
     }
 }

@@ -186,9 +186,9 @@ function solve(){
         var I = parseFloat(document.getElementById('solver_I').value);
         var dx = parseFloat(document.getElementById('solver_dx').value);
 
-        sol.setI(I);
-        sol.setE(E);
-        sol.setDX(dx);
+        sol.I = I;
+        sol.E = E;
+        sol.dx = dx;
 
         sol.solve();
 

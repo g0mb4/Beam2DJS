@@ -71,7 +71,7 @@
               </tr>
               <tr>
                   <td>x2</td>
-                  <td><input id="beam_x2" value="1.9"/> m</td>
+                  <td><input id="beam_x2" value="1"/> m</td>
               </tr>
               <tr>
                   <td>y2</td>
@@ -124,13 +124,13 @@
               </tr>
               <tr>
                   <td>nagyság</td>
-                  <td><input id="force_magnitude" value="5000"/> N</td>
+                  <td><input id="force_magnitude" value="1"/> N</td>
                   <td>Fx</td>
                   <td><input id="force_c_x" value="1"/> N</td>
               </tr>
               <tr>
                   <td>hajlásszög</td>
-                  <td><input id="force_angle" value="314"/> °</td>
+                  <td><input id="force_angle" value="270"/> °</td>
                   <td>Fy</td>
                   <td><input id="force_c_y" value="1"/> N</td>
               </tr>
@@ -199,7 +199,7 @@
                   <td><input id="solver_E" value="210000000000"/> Pa</td>
               </tr>
               <tr>
-                  <td>dx</td>
+                  <td>felbontás</td>
                   <td><input id="solver_dx" value="1e-3"/> m</td>
               </tr>
               <tr>
@@ -212,6 +212,8 @@
           <h3>Eredmények</h3>
           <div id="solution_text">
           </div>
+          <table id="table_results" border="1">
+          </table>
           <div id="chart_shear" style="width: 100%px;">
           </div>
           <div id="chart_bending_moment" style="width: 800px;">
