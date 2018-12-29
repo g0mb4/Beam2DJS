@@ -11,51 +11,55 @@
                 		<!-- canvas will go here! -->
                 </div></td>
                 <td><div>
-                    Beams:<br>
+                    Rúdelemek:<br>
                     <select id="list_beams" onclick="updateSelected('list_beams')" multiple>
                     </select><br>
-                    <button onclick="delUserObject('list_beams', 'beam')">Delete Selected</button><br>
-                    <button onclick="delUserObjectsAll('beam')">Delete All</button><br><br>
-                    Supports:<br>
+                    <button onclick="delUserObject('list_beams', 'beam')">Kijelölt törlése</button><br>
+                    <button onclick="delUserObjectsAll('beam')">Összes törlése</button><br><br>
+                    Megtámasztások:<br>
                     <select id="list_supports" onclick="updateSelected('list_supports')" multiple>
                     </select><br>
-                    <button onclick="delUserObject('list_supports', 'support')">Delete Selected</button><br>
-                    <button onclick="delUserObjectsAll('support')">Delete All</button><br><br>
-                    Loads:<br>
+                    <button onclick="delUserObject('list_supports', 'support')">Kijelölt törlése</button><br>
+                    <button onclick="delUserObjectsAll('support')">Összes törlése</button><br><br>
+                    Terhelések:<br>
                     <select id="list_loads" onclick="updateSelected('list_loads')" multiple>
                     </select><br>
-                    <button onclick="delUserObject('list_loads', 'load')">Delete Selected</button><br>
-                    <button onclick="delUserObjectsAll('load')">Delete All</button><br><br>
+                    <button onclick="delUserObject('list_loads', 'load')">Kijelölt törlése</button><br>
+                    <button onclick="delUserObjectsAll('load')">Összes törlésel</button><br><br>
                 </div></td>
             </tr>
         </table>
 
         <div class="input-tab">
-            <button class="tablinks" onclick="openTab(event, 'load_save_tab')">Load/Save</button>
-            <button class="tablinks" onclick="openTab(event, 'beam_tab')">Beam</button>
-            <button class="tablinks" onclick="openTab(event, 'support_tab')">Support</button>
-            <button class="tablinks" onclick="openTab(event, 'force_tab')">Force</button>
-            <button class="tablinks" onclick="openTab(event, 'moment_tab')">Moment</button>
-            <button class="tablinks" onclick="openTab(event, 'solver_tab')">Solver</button>
+            <button class="tablinks" onclick="openTab(event, 'load_save_tab')">0. Betöltés/Mentés</button>
+            <button class="tablinks" onclick="openTab(event, 'beam_tab')">1. Tartó</button>
+            <button class="tablinks" onclick="openTab(event, 'support_tab')">2. Megtámasztás</button>
+            <button class="tablinks" onclick="openTab(event, 'force_tab')">3. Erő</button>
+            <button class="tablinks" onclick="openTab(event, 'moment_tab')">3. Nyomaték</button>
+            <button class="tablinks" onclick="openTab(event, 'dist_const_tab')">3. Konst. megoszló</button>
+            <button class="tablinks" onclick="openTab(event, 'solver_tab')">4. Megoldó</button>
+            <button class="tablinks" onclick="openTab(event, 'results_tab')">5. Eredmények</button>
         </div>
         <div id="load_save_tab" class="tabcontent">
-          <h3>Load/Save</h3>
+          <h3>Betöltés/Mentés</h3>
           <table>
               <tr>
-                  <td><button onclick="load_structure()">Load</button></td>
-                  <td></td>
-                  <td><button onclick="load_example1()">Load Example 1 - Sziltan Floppy - PRG4SZ/1/0</button></td>
+                  <td><button onclick="load_structure()">Betöltés</button></td>
+                  <td><button onclick="load_example1()">Példa 1 betöltése - Sziltan Floppy - PRG4SZ/1/0</button></td>
               </tr>
               <tr>
-                  <td><button onclick="save_structure()">Save</button></td>
+                  <td><button onclick="save_structure()">Mentés</button></td>
+                  <td><button onclick="load_example2()">Példa 2 betöltése - Sziltan Floppy - PRG4SZ/8/0</button></td>
+              </tr>
+              <tr>
                   <td></td>
-                  <td><button onclick="load_example2()">Load Example 2 - Sziltan Floppy - PRG4SZ/8/0</button></td>
+                  <td><button onclick="load_example3()">Példa 3 betöltése - Sziltan Floppy - PRG4SZ/4/0</button></td>
               </tr>
           </table><br>
             <td><textarea id="text_load_save" rows="30" cols="50"></textarea></td>
         </div>
         <div id="beam_tab" class="tabcontent">
-          <h3>Beam</h3>
+          <h3>Tartó</h3>
           <table>
               <tr>
                   <td>x1</td>
@@ -74,21 +78,21 @@
                   <td><input id="beam_y2" value="0" style="background-color:#AAAAAA" readonly/> m</td>
               </tr>
               <tr>
-                  <td><button onclick="addUserBeam()">Add Beam</button></td>
+                  <td><button onclick="addUserBeam()">Rúdelem hozzáadása</button></td>
                   <td></td>
               </tr>
             </table>
         </div>
         <div id="support_tab" class="tabcontent">
-          <h3>Support</h3>
+          <h3>Megtámasztás</h3>
           <table>
               <tr>
-                  <td>point</td>
+                  <td>csatlakozási pont</td>
                   <td><select id="list_points_support">
                   </select></td>
               </tr>
               <tr>
-                  <td>type</td>
+                  <td>típus</td>
                   <td><form action="">
                         <input type="radio" name="support_type" value="support_trundle" checked="checked"><img src="imgs/support_trundle.png">
                         <input type="radio" name="support_type" value="support_wrist"><img src="imgs/support_wrist.png">
@@ -96,7 +100,7 @@
                     </form></td>
               </tr>
               <tr>
-                  <td>direction</td>
+                  <td>irányultság</td>
                   <td><form action="">
                         <input type="radio" name="support_dir" value="dir_y_plus" checked="checked"><img src="imgs/support_dir_yp.png">
                         <input type="radio" name="support_dir" value="dir_y_minus"><img src="imgs/support_dir_ym.png">
@@ -105,59 +109,86 @@
                     </form></td>
               </tr>
               <tr>
-                  <td><button onclick="addUserSupport()">Add Support</button></td>
+                  <td><button onclick="addUserSupport()">Támasz hozzáadása</button></td>
                   <td></td>
               </tr>
             </table>
         </div>
         <div id="force_tab" class="tabcontent">
-          <h3>Force</h3>
+          <h3>Erő</h3>
           <table>
               <tr>
-                  <td>point</td>
+                  <td>csatlakozási pont</td>
                   <td><select id="list_points_force">
                   </select></td>
               </tr>
               <tr>
-                  <td>magnitude</td>
+                  <td>nagyság</td>
                   <td><input id="force_magnitude" value="5000"/> N</td>
                   <td>Fx</td>
                   <td><input id="force_c_x" value="1"/> N</td>
               </tr>
               <tr>
-                  <td>angle</td>
+                  <td>hajlásszög</td>
                   <td><input id="force_angle" value="314"/> °</td>
                   <td>Fy</td>
                   <td><input id="force_c_y" value="1"/> N</td>
               </tr>
               <tr>
-                  <td><button onclick="addUserForceMag()">Add Force Magnitude</button></td>
+                  <td><button onclick="addUserForceMag()">Erő hozzáadása (nagyság, szög)</button></td>
                   <td></td>
-                  <td><button onclick="addUserForceComp()">Add Force Components</button></td>
+                  <td><button onclick="addUserForceComp()">Erő hozzáadása (komponensek)</button></td>
                   <td></td>
               </tr>
           </table>
         </div>
         <div id="moment_tab" class="tabcontent">
-          <h3>Moment</h3>
+          <h3>Nyomaték</h3>
           <table>
               <tr>
-                  <td>point</td>
+                  <td>csatlakozási pont</td>
                   <td><select id="list_points_moment">
                   </select></td>
               </tr>
               <tr>
-                  <td>magnitude</td>
+                  <td>nagyság</td>
                   <td><input id="moment_magnitude" value="1"/> Nm</td>
               </tr>
               <tr>
-                  <td><button onclick="addUserMoment()">Add Moment</button></td>
+                  <td><button onclick="addUserMoment()">Nyomaték hozzáadása</button></td>
+                  <td></td>
+              </tr>
+          </table>
+        </div>
+        <div id="dist_const_tab" class="tabcontent">
+          <h3>Konstans megoszló terhelés</h3>
+          <table>
+              <tr>
+                  <td>csatlakozási pont (kezdete)</td>
+                  <td><select id="list_points_dist_const_1">
+                  </select></td>
+              </tr>
+              <tr>
+                  <td>csatlakozási pont (vége)</td>
+                  <td><select id="list_points_dist_const_2">
+                  </select></td>
+              </tr>
+              <tr>
+                  <td>nagyság</td>
+                  <td><input id="dist_const_mag" value="1"/> N/m</td>
+              </tr>
+              <tr>
+                  <td>hajlásszög</td>
+                  <td><input id="dist_const_angle" value="1"/> °</td>
+              </tr>
+              <tr>
+                  <td><button onclick="addUserDistConst()">Terhelés hozzáadása</button></td>
                   <td></td>
               </tr>
           </table>
         </div>
         <div id="solver_tab" class="tabcontent">
-          <h3>Solver</h3>
+          <h3>Megoldó</h3>
           <table>
               <tr>
                   <td>I</td>
@@ -172,20 +203,23 @@
                   <td><input id="solver_dx" value="1e-3"/> m</td>
               </tr>
               <tr>
-                  <td><button onclick="solve()">SOLVE!</button></td>
+                  <td><button onclick="solve()">MEGOLDÁS!</button></td>
                   <td></td>
               </tr>
             </table>
         </div>
-        <div id="solution_text">
-        </div>
-        <div id="chart_shear" style="width: 800px;">
-        </div>
-        <div id="chart_bending_moment" style="width: 800px;">
-        </div>
-        <div id="chart_deflection" style="width: 800px;">
-        </div>
-        <div id="chart_rotation" style="width: 800px;">
+        <div id="results_tab" class="tabcontent" style="width: 800px;">
+          <h3>Eredmények</h3>
+          <div id="solution_text">
+          </div>
+          <div id="chart_shear" style="width: 100%px;">
+          </div>
+          <div id="chart_bending_moment" style="width: 800px;">
+          </div>
+          <div id="chart_deflection" style="width: 800px;">
+          </div>
+          <div id="chart_rotation" style="width: 800px;">
+          </div>
         </div>
 
     </body>

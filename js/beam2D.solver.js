@@ -74,15 +74,16 @@ class Beam2DSolver{
     }
 
     generateRotation(){
+        /* phi = dv/dx */
         this.phi = [];
         for(var i = 0; i < this.v.length - 1; i++){
-            var x = this.v[i].x;
+            var x1 = this.v[i].x;
             var v1 = this.v[i].v;
             var v2 = this.v[i + 1].v;
 
-            var phi_dx = (v2 - v1) / this.dx;  // phi = dv/dx
+            var phi_dx = (v2 - v1) / this.dx;
 
-            this.phi.push({ x: x, phi: phi_dx });
+            this.phi.push({ x: x1, phi: phi_dx });
         }
         return this.phi;
     }
@@ -95,24 +96,23 @@ class Beam2DSolver{
 
             var x = p1.x;
             for(; x <= p2.x; x += this.dx){
-                var T_dx = this._T(x);
+                var T_dx = this._Ty(x);
 
                 this.T.push({ x: x, T: T_dx });
             }
 
-            /* last point, just to be sure */
+            /* last point of the section, just to be sure */
             if(x != p2.x){
-                var T_dx = this._T(p2.x);
+                var T_dx = this._Ty(p2.x);
                 this.T.push({ x: x, T: T_dx });
             }
         }
-
         return this.T;
     }
 
-    _T(x){
+    _Ty(x){
         var T = 0;
-        // add loads
+
         for(var c = 0; c < this.structure.length; c++){
             var conds = this.structure[c];
             for(var j = 0; j < conds.length; j++){
@@ -127,17 +127,20 @@ class Beam2DSolver{
             }
         }
 
-        //add reaction forces
+        /* add forces from calculated p0 */
         for(var j = 0; j < this.env.getPointsSize(); j++){
             var p = this.env.getPoint(j);
 
             if(x >= p.x){
-                var R = math.subset(this.p0, math.index(j * 2, 0));
-                T += R;
+                 T += math.subset(this.p0, math.index(j * 2, 0));
             }
         }
 
         return T;
+    }
+
+    _q(x){
+
     }
 
     generateBendingMoment(){
@@ -164,19 +167,21 @@ class Beam2DSolver{
     }
 
     _Mz(x){
+        /* M(x) - M(0) = -integral(0, x, T(x), dx) */
         var M = 0;
 
+        /* -integral(0, x, T, dx) */
         for(var i = 0; i * this.dx <= x; i++){
             M += -this.T[i].T * this.dx;
         }
 
-        //add reaction forces
+        /* add moments from calculated p0 */
         for(var j = 0; j < this.env.getPointsSize(); j++){
             var p = this.env.getPoint(j);
 
+            /* if x is beyond the point */
             if(x >= p.x){
-                var M_R = math.subset(this.p0, math.index(j * 2 + 1, 0));
-                M += M_R;
+                M += math.subset(this.p0, math.index(j * 2 + 1, 0));
             }
         }
 
@@ -262,6 +267,7 @@ class Beam2DSolver{
     }
 
     applyBoundaryConditions(p, K){
+        // first add the loads
         for(var i = 0; i < this.structure.length; i++){
             var conds = this.structure[i];
 
@@ -282,7 +288,6 @@ class Beam2DSolver{
                         } else {
                             /* TODO */
                         }
-
                     } else if(cond.support_type == "support_trundle") {
                         if(cond.dir == "dir_y_plus" || cond.dir == "dir_y_minus"){
                             p.subset(math.index(pos_v,   0), 0);
@@ -307,9 +312,9 @@ class Beam2DSolver{
                     }
                 } else if(cond.type == "load"){
                     if(cond.load_type == "load_force") {
-                        p.subset(math.index(pos_v,   0), cond.c_y1);
+                        p._data[pos_v][0] += cond.c_y1;
                     } else if(cond.load_type == "load_moment") {
-                        p.subset(math.index(pos_phi, 0), cond.c_x1);
+                        p._data[pos_phi][0] += cond.c_x1;
                     }
                 }
             }

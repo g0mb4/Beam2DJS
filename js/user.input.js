@@ -46,6 +46,8 @@ function updateUIList(list, type){
     updatePointsList('list_points_support');
     updatePointsList('list_points_force');
     updatePointsList('list_points_moment');
+    updatePointsList('list_points_dist_const_1');
+    updatePointsList('list_points_dist_const_2');
 }
 
 function updatePointsList(list){
@@ -156,6 +158,26 @@ function addUserMoment(){
     }
 }
 
+function addUserDistConst(){
+    var point1Index = document.getElementById('list_points_dist_const_1').value;
+    p1 = env.getPoint(point1Index);
+
+    var point2Index = document.getElementById('list_points_dist_const_2').value;
+    p2 = env.getPoint(point2Index);
+
+    if(p1 != null && p2 != null){
+        var magnitude = parseFloat(document.getElementById('dist_const_mag').value);
+        var angle = parseFloat(document.getElementById('dist_const_angle').value);
+
+        var c_x = magnitude * cos(radians(angle));
+        var c_y = magnitude * sin(radians(angle));
+
+        env.addObject(new Load(env.getNextID(), p1.x, p1.y, p2.x, p2.y, "load_dist_const", c_x, c_y, c_x, c_y));
+        updateUIList("list_loads", "load");
+    }
+}
+
+
 function solve(){
     if(env != null){
         env.clearSolution();
@@ -185,6 +207,8 @@ function solve(){
 
         env.writeSolution();
         env.drawCharts();
+
+        openTab(event, 'results_tab');
     }
 }
 
@@ -336,6 +360,66 @@ function load_example2(){
         }
       ],
       "I": 0.00000171,
+      "E": 210000000000,
+      "dx": 0.001
+    });
+}
+
+function load_example3(){
+    load_example({
+      "objs": [
+        {
+          "id": 0,
+          "type": "beam",
+          "x1": 0,
+          "y1": 0,
+          "x2": 1.2,
+          "y2": 0
+        },
+        {
+          "id": 1,
+          "type": "beam",
+          "x1": 1.2,
+          "y1": 0,
+          "x2": 1.8,
+          "y2": 0
+        },
+        {
+          "id": 2,
+          "type": "support",
+          "support_type": "support_fixed",
+          "x": 1.8,
+          "y": 0,
+          "dir": "dir_x_minus"
+        },
+        {
+          "id": 3,
+          "type": "load",
+          "load_type": "load_force",
+          "x1": 0,
+          "y1": 0,
+          "x2": 0,
+          "y2": 0,
+          "c_x1": 3581.44231343778,
+          "c_y1": 2415.7133429936266,
+          "c_x2": 0,
+          "c_y2": 0
+        },
+        {
+          "id": 4,
+          "type": "load",
+          "load_type": "load_dist_const",
+          "x1": 1.2,
+          "y1": 0,
+          "x2": 1.8,
+          "y2": 0,
+          "c_x1": -3.416764569621115e-13,
+          "c_y1": -1860,
+          "c_x2": -3.416764569621115e-13,
+          "c_y2": -1860
+        }
+      ],
+      "I": 0.000171,
       "E": 210000000000,
       "dx": 0.001
     });

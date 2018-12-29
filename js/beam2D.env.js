@@ -93,7 +93,7 @@ class Beam2DEnvironment{
         } else if(o.type == "support"){
             this.addObject(new Support(o.id, o.x, o.y, o.support_type, o.dir));
         } else if(o.type == "load"){
-            this.addObject(new Load(o.id, o.x1, o.x2, o.x2, o.y2, o.load_type, o.c_x1, o.c_y1, o.c_x2, o.c_y2));
+            this.addObject(new Load(o.id, o.x1, o.y1, o.x2, o.y2, o.load_type, o.c_x1, o.c_y1, o.c_x2, o.c_y2));
         }
 
         this.objectID = 0;
@@ -331,10 +331,11 @@ class Beam2DEnvironment{
 
         var TChartData = google.visualization.arrayToDataTable(TData);
         var TChartOptions = {
-          title: 'Shear',
+          title: 'Nyíró igénybevétel',
+          width: 800,
           legend: 'none',
           hAxis: { title: 'x, m' },
-          vAxis: { title: 'T, N' }
+          vAxis: { title: 'Ty, N' }
         };
 
         var TChart = new google.visualization.AreaChart(document.getElementById('chart_shear'));
@@ -347,7 +348,8 @@ class Beam2DEnvironment{
 
         var MChartData = google.visualization.arrayToDataTable(MData);
         var MChartOptions = {
-            title: 'Bending moment',
+            title: 'Hajlító nyomatéki igénybevétel',
+            width: 800,
             legend: 'none',
             hAxis: { title: 'x, m' },
             vAxis: { title: 'Mz, Nm' }
@@ -363,8 +365,9 @@ class Beam2DEnvironment{
 
         var vChartData = google.visualization.arrayToDataTable(vData);
         var vChartOptions = {
-            title: 'Deflection',
+            title: 'Lehajlás',
             curveType: 'function',
+            width: 800,
             legend: 'none',
             hAxis: { title: 'x, m' },
             vAxis: { format: 'scientific', title: 'v, m' }
@@ -380,8 +383,9 @@ class Beam2DEnvironment{
 
         var phiChartData = google.visualization.arrayToDataTable(phiData);
         var phiChartOptions = {
-            title: 'Rotation',
+            title: 'Szögelfordulás',
             curveType: 'function',
+            width: 800,
             legend: 'none',
             hAxis: { title: 'x, m' },
             vAxis: { format: 'scientific', title: 'phi, rad' }

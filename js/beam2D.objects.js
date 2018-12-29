@@ -134,12 +134,12 @@ class Load
 
         if(this.load_type == "load_force"){
             var angle = Math.atan2(this.c_y1, this.c_x1);
-            rotate(angle + PI / 2);
+            rotate(-angle);
             line(0, 0, 50, 0);
             triangle(  50, 0,
                        40,-3,
                        40, 3);
-        } if(this.load_type == "load_moment"){
+        } else if(this.load_type == "load_moment"){
             noFill();
             strokeWeight(3);
             if(this.c_x1 < 0) {
@@ -153,6 +153,23 @@ class Load
                            20 * cos(radians(225)), 20 * sin(radians(225)),
                            23 * cos(radians(240)), 23 * sin(radians(240)));
             }
+        } else if(this.load_type == "load_dist_const"){
+            strokeWeight(3);
+            var lenX = this.x2 - this.x1;
+
+            if(this.c_y1 < 0){
+                triangle(  10, -20,
+                           20, -20,
+                           15, -10 );
+            } else {
+                triangle(  10, -10,
+                           20, -10,
+                           15, -20 );
+            }
+
+            line(0, 0, 0, -30);
+            line(0, -30, lenX * scale, -30);
+            line(lenX * scale, -30, lenX * scale, 0);
         }
         pop();
     }
