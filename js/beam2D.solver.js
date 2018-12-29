@@ -30,12 +30,6 @@ class Beam2DSolver{
 
         this.d = math.lusolve(this.K1, this.p1);        // the magic happens here ;)
         this.p0 = math.multiply(this.K0, this.d);       // calculaton of the reaction forces
-
-        this.generateDeflection();
-        this.generateRotation();
-
-        this.generateShear();
-        this.generateBendingMoment();
     }
 
     generateDeflection(){
@@ -88,6 +82,27 @@ class Beam2DSolver{
         return this.phi;
     }
 
+    removeDistForces(){
+        /* subrtact distributed forces, moments */
+        this.p0_nodist = this.p0.clone();
+        for(var i = 0; i < this.structure.length; i++){
+            var pos_F = i * 2;
+            var pos_M = (i * 2) + 1;
+            var conds = this.structure[i];
+
+            for(var j = 0; j < conds.length; j++){
+                var cond = conds[j];
+                if(cond.id == -1 && cond.type == "load"){
+                    if(cond.load_type == "load_force") {
+                        this.p0_nodist._data[pos_F][0] -= cond.c_y1;
+                    } else if(cond.load_type == "load_moment") {
+                        this.p0_nodist._data[pos_M][0] -= cond.c_x1;
+                    }
+                }
+            }
+        }
+    }
+
     generateShear(){
         this.T = [];
         for(var i = 0; i < this.env.getPointsSize() - 1; i++){
@@ -111,20 +126,11 @@ class Beam2DSolver{
     }
 
     _Ty(x){
+        /* Ty(x) - Ty(0) = integral(0, x, q(x), dx) */
         var T = 0;
-
-        for(var c = 0; c < this.structure.length; c++){
-            var conds = this.structure[c];
-            for(var j = 0; j < conds.length; j++){
-                var cond = conds[j];
-                if(cond.type == "load"){
-                    /*if(cond.load_type == "load_force") {
-                        if(x >= cond.x1){
-                            T += cond.c_y1;
-                        }
-                    }*/
-                }
-            }
+        /* integral(0, x, q(x), dx) */
+        for(var s = 0; s <= x; s += this.dx){
+            T += this._q(s) * this.dx;
         }
 
         /* add forces from calculated p0 */
@@ -132,7 +138,7 @@ class Beam2DSolver{
             var p = this.env.getPoint(j);
 
             if(x >= p.x){
-                 T += math.subset(this.p0, math.index(j * 2, 0));
+                 T += math.subset(this.p0_nodist, math.index(j * 2, 0));   // add force
             }
         }
 
@@ -140,7 +146,23 @@ class Beam2DSolver{
     }
 
     _q(x){
-
+        var q = 0;
+        for(var i = 0; i < this.env.getPointsSize(); i++){
+            var pointObjects = [];
+            var p = this.env.getPoint(i);
+            for(var j = 0; j < this.env.getObjectsSize(); j++){
+                var o = this.env.getObjectIndex(j);
+                if(o.type == "load"){
+                    if(o.load_type == "load_dist_const"){
+                        if(x >= o.x1 && x <= o.x2){
+                            q = o.c_y1;
+                            return q;
+                        }
+                    }
+                }
+            }
+        }
+        return 0;
     }
 
     generateBendingMoment(){
@@ -181,7 +203,7 @@ class Beam2DSolver{
 
             /* if x is beyond the point */
             if(x >= p.x){
-                M += math.subset(this.p0, math.index(j * 2 + 1, 0));
+                M += math.subset(this.p0_nodist, math.index(j * 2 + 1, 0));  // add momentum
             }
         }
 
@@ -191,6 +213,7 @@ class Beam2DSolver{
     resolveStructure(){
         this.structure = [];
 
+        /* add supports, forces and moment */
         for(var i = 0; i < this.env.getPointsSize(); i++){
             var pointObjects = [];
             var p = this.env.getPoint(i);
@@ -210,6 +233,31 @@ class Beam2DSolver{
             }
 
             this.structure.push(pointObjects);
+        }
+
+        /* add distributed loads */
+        for(var i = 0; i < this.env.getPointsSize() - 1; i++){
+            var p1 = this.env.getPoint(i);
+            var p2 = this.env.getPoint(i + 1);
+            for(var j = 0; j < this.env.getObjectsSize(); j++){
+                var o = this.env.getObjectIndex(j);
+                if(o.type == "load"){
+                    if(o.load_type == "load_dist_const"){
+                        /* TODO: check if dist is in more than 2 nodes */
+                        if(o.x1 == p1.x && o.y1 == p1.y){
+                            var L = sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y));
+                            var F = (o.c_y1 * L) / 2;       // calculate equivalent force (q * L) / 2
+                            var M = (o.c_y1 * L * L) / 12;  // calculate equivalent moment (q * L * L) / 12
+
+                            this.structure[i    ].push(new Load(-1, p1.x, p1.y, 0, 0, "load_force", 0, F, 0, 0));
+                            this.structure[i + 1].push(new Load(-1, p2.x, p2.y, 0, 0, "load_force", 0, F, 0, 0));
+
+                            this.structure[i    ].push(new Load(-1, p1.x, p1.y, 0, 0, "load_moment", -M, 0, 0, 0));  // M is negative !!
+                            this.structure[i + 1].push(new Load(-1, p2.x, p2.y, 0, 0, "load_moment",  M, 0, 0, 0));
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -277,6 +325,26 @@ class Beam2DSolver{
             for(var j = 0; j < conds.length; j++){
                 var cond = conds[j];
 
+                if(cond.type == "load"){
+                    if(cond.load_type == "load_force") {
+                        p._data[pos_v][0] += cond.c_y1;
+                    } else if(cond.load_type == "load_moment") {
+                        p._data[pos_phi][0] += cond.c_x1;
+                    }
+                }
+            }
+        }
+
+        // then the suports
+        for(var i = 0; i < this.structure.length; i++){
+            var conds = this.structure[i];
+
+            var pos_v   = i * 2;
+            var pos_phi = (i * 2) + 1;
+
+            for(var j = 0; j < conds.length; j++){
+                var cond = conds[j];
+
                 if(cond.type == "support") {
                     if(cond.support_type == "support_wrist") {
                         if(cond.dir == "dir_y_plus" || cond.dir == "dir_y_minus"){
@@ -309,12 +377,6 @@ class Beam2DSolver{
                         this._zeroRow(K, pos_phi);
                         this._zeroCol(K, pos_phi);
                         K.subset(math.index(pos_phi, pos_phi), 1);
-                    }
-                } else if(cond.type == "load"){
-                    if(cond.load_type == "load_force") {
-                        p._data[pos_v][0] += cond.c_y1;
-                    } else if(cond.load_type == "load_moment") {
-                        p._data[pos_phi][0] += cond.c_x1;
                     }
                 }
             }

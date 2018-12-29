@@ -192,18 +192,21 @@ function solve(){
 
         sol.solve();
 
-        env.K0 = sol.K0;
-        env.K1 = sol.K1;
-        env.p0 = sol.p0;
-        env.p1 = sol.p1;
-        env.d = sol.d;
-
         // orded is important !!!
         env.v = sol.generateDeflection();
         env.phi = sol.generateRotation();
 
+        sol.removeDistForces(); // MUST HAVE TO DO !!!
+
         env.T = sol.generateShear();
         env.M = sol.generateBendingMoment();
+
+        env.K0 = sol.K0;
+        env.K1 = sol.K1;
+        env.p0 = sol.p0;
+        env.p1 = sol.p1;
+        env.p0_nodist = sol.p0_nodist;
+        env.d = sol.d;
 
         env.writeSolution();
         env.drawCharts();
@@ -419,8 +422,8 @@ function load_example3(){
           "c_y2": -1860
         }
       ],
-      "I": 0.000171,
+      "I": 0.00000171,
       "E": 210000000000,
-      "dx": 0.001
+      "dx": 0.0005
     });
 }

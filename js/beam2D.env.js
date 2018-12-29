@@ -15,6 +15,7 @@ class Beam2DEnvironment{
         this.K1 = [];
         this.p0 = [];
         this.p1 = [];
+        this.p0_nodist = [];
         this.d = [];
 
         this.T = [];
@@ -300,6 +301,23 @@ class Beam2DEnvironment{
 
         str += "\\begin{pmatrix}";
         this.p0.map(function (value, index, matrix) {
+            str += value;
+
+            if(index[0] % 2 == 0){
+                str += " \\quad \\mathrm{N}";
+            } else {
+                str += " \\quad \\mathrm{Nm}";
+            }
+
+            if(index[0] < matrix._size[0] - 1){
+                str += "\\\\";
+            }
+        });
+        str += " \\end{pmatrix}";
+
+        str += "\\underline{p_{0nodist}} ="
+        str += "\\begin{pmatrix}";
+        this.p0_nodist.map(function (value, index, matrix) {
             str += value;
 
             if(index[0] % 2 == 0){
