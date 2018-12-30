@@ -5,6 +5,8 @@
         <title>Beam2DJS</title>
     </head>
     <body>
+        Beam2DJS<br>
+        Tóth János, 2018
         <table>
             <tr>
                 <td><div id="canvas">
@@ -45,15 +47,16 @@
           <table>
               <tr>
                   <td><button onclick="load_structure()">Betöltés</button></td>
-                  <td><button onclick="load_example1()">Példa 1 betöltése - Sziltan Floppy - PRG4SZ/1/0</button></td>
+                  <td><button onclick="load_example1()">Példa 1 egyenes tartó - Sziltan Floppy - PRG4SZ/1/0</button></td>
+                  <td><button onclick="load_example4()">Példa 4 többtámaszú tartó - Sziltan Floppy - PRG7SZ/1/0</button></td>
               </tr>
               <tr>
                   <td><button onclick="save_structure()">Mentés</button></td>
-                  <td><button onclick="load_example2()">Példa 2 betöltése - Sziltan Floppy - PRG4SZ/8/0</button></td>
+                  <td><button onclick="load_example2()">Példa 2 egyenes tartó - Sziltan Floppy - PRG4SZ/8/0</button></td>
               </tr>
               <tr>
                   <td></td>
-                  <td><button onclick="load_example3()">Példa 3 betöltése - Sziltan Floppy - PRG4SZ/4/0</button></td>
+                  <td><button onclick="load_example3()">Példa 3 egyenes tartó - Sziltan Floppy - PRG4SZ/4/0</button></td>
               </tr>
           </table><br>
             <td><textarea id="text_load_save" rows="30" cols="50"></textarea></td>
@@ -204,7 +207,7 @@
               </tr>
               <tr>
                   <td><button onclick="solve()">MEGOLDÁS!</button></td>
-                  <td></td>
+                  <td>A <b>MEGOLDÁS!</b> gomb megnyomása után a program elkezdi a számításokat, amint végzett automatikusan megnyitja az <b>Eredmények</b> fület, a szerkezet bonyolultságától és a <b>felbontás</b> mező értékétől függően, ez hosszabb időbe is telhet.</td>
               </tr>
             </table>
         </div>

@@ -206,10 +206,6 @@ class Beam2DEnvironment{
         this.drawScaleFactor = s;
     }
 
-    getPointsSize(){
-        return this.points.length;
-    }
-
     getPoint(index){
         if(index >= this.points.length){
             return null;
@@ -226,7 +222,7 @@ class Beam2DEnvironment{
         document.getElementById('chart_rotation').style.display = "none";
     }
 
-    writeSolution(){
+    _showMatricies(){
         var div = document.getElementById('solution_text');
 
         // p
@@ -332,8 +328,12 @@ class Beam2DEnvironment{
         });
         str += " \\end{pmatrix} \\)";
 
-        //div.innerHTML = str;
-        //MathJax.Hub.Queue(["Typeset", MathJax.Hub, "solution_text"]);
+        div.innerHTML = str;
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "solution_text"]);
+    }
+
+    writeSolution(){
+        //this._showMatricies();
 
         var table = document.getElementById("table_results");
         table.innerHTML = "";
@@ -415,7 +415,6 @@ class Beam2DEnvironment{
         var vChartData = google.visualization.arrayToDataTable(vData);
         var vChartOptions = {
             title: 'Lehajlás',
-            curveType: 'function',
             width: 800,
             legend: 'none',
             hAxis: { title: 'x, m' },
@@ -433,7 +432,6 @@ class Beam2DEnvironment{
         var phiChartData = google.visualization.arrayToDataTable(phiData);
         var phiChartOptions = {
             title: 'Szögelfordulás',
-            curveType: 'function',
             width: 800,
             legend: 'none',
             hAxis: { title: 'x, m' },

@@ -24,7 +24,7 @@ class Beam2DSolver{
         this.structure = [];
 
         /* add supports, forces and moment */
-        for(var i = 0; i < this.env.getPointsSize(); i++){
+        for(var i = 0; i < this.env.points.length; i++){
             var p = this.env.getPoint(i);
 
             var pointObject = {
@@ -32,7 +32,7 @@ class Beam2DSolver{
                 pointData : [],
             }
 
-            for(var j = 0; j < this.env.getObjectsSize(); j++){
+            for(var j = 0; j < this.env.objects.length; j++){
                 var o = this.env.getObjectIndex(j);
                 if(o.type == "support"){
                     if(o.x == p.x && o.y == p.y){
@@ -49,8 +49,32 @@ class Beam2DSolver{
             this.structure.push(pointObject);
         }
 
+        /* slice distributed loads */
+        for(var i = 0; i < this.env.points.length - 1; i++){
+            var p1 = this.env.getPoint(i);
+            var p2 = this.env.getPoint(i + 1);
+
+            for(var j = 0; j < this.env.objects.length; j++){
+                var o = this.env.getObjectIndex(j);
+                if(o.type == "load"){
+                    if(o.load_type == "load_dist_const"){
+                        if(o.x1 == p1.x && o.x2 != p2.x){
+                            /* SLICE HERE */
+
+                            this.env.addObject(new Load(this.env.getNextID(), o.x1, o.y1, p2.x, p2.y, "load_dist_const", o.c_x1, o.c_y1, o.c_x2, o.c_y1));
+                            this.env.addObject(new Load(this.env.getNextID(), p2.x, p2.y, o.x2, o.y2, "load_dist_const", o.c_x1, o.c_y1, o.c_x2, o.c_y1));
+
+                            this.env.delObjectID(o.id);
+
+                            j--; // check again
+                        }
+                    }
+                }
+            }
+        }
+
         /* add distributed loads */
-        for(var i = 0; i < this.env.getPointsSize() - 1; i++){
+        for(var i = 0; i < this.env.points.length - 1; i++){
             var p1 = this.env.getPoint(i);
             var p2 = this.env.getPoint(i + 1);
 
@@ -59,17 +83,16 @@ class Beam2DSolver{
                 if(o.type == "load"){
                     if(o.load_type == "load_dist_const"){
                         this.structure[i].pointData.push(o);    // for Ty, Mhz diagrams
-
-                        if(o.x1 == p.x){
+                        if(o.x1 == p1.x && o.y1 == p1.y){
                             var L = sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y));
                             var F = (o.c_y1 * L) / 2;       // calculate equivalent force (q * L) / 2
                             var M = (o.c_y1 * L * L) / 12;  // calculate equivalent moment (q * L * L) / 12
 
-                            this.structure[i    ].push(new Load(-1, p1.x, p1.y, 0, 0, "load_force", 0, F, 0, 0));
-                            this.structure[i + 1].push(new Load(-1, p2.x, p2.y, 0, 0, "load_force", 0, F, 0, 0));
+                            this.structure[i    ].pointData.push(new Load(-1, p1.x, p1.y, 0, 0, "load_force", 0, F, 0, 0));
+                            this.structure[i + 1].pointData.push(new Load(-1, p2.x, p2.y, 0, 0, "load_force", 0, F, 0, 0));
 
-                            this.structure[i    ].push(new Load(-1, p1.x, p1.y, 0, 0, "load_moment", -M, 0, 0, 0));  // M is negative !!
-                            this.structure[i + 1].push(new Load(-1, p2.x, p2.y, 0, 0, "load_moment",  M, 0, 0, 0));
+                            this.structure[i    ].pointData.push(new Load(-1, p1.x, p1.y, 0, 0, "load_moment", -M, 0, 0, 0));  // M is negative !!
+                            this.structure[i + 1].pointData.push(new Load(-1, p2.x, p2.y, 0, 0, "load_moment",  M, 0, 0, 0));
                         }
                     }
                 }
@@ -263,10 +286,9 @@ class Beam2DSolver{
         for(var i = 0; i < this.structure.length; i++){
             var pos_F = i * 2;
             var pos_M = (i * 2) + 1;
-            var objs = this.structure[i].pointData;
 
-            for(var j = 0; j < objs.length; j++){
-                var obj = objs[j];
+            for(var j = 0; j < this.structure[i].pointData.length; j++){
+                var obj = this.structure[i].pointData[j];
                 if(obj.id == -1 && obj.type == "load"){
                     if(obj.load_type == "load_force") {
                         this.p0_nodist._data[pos_F][0] -= obj.c_y1;

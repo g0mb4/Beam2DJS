@@ -54,7 +54,7 @@ function updatePointsList(list){
     var select = document.getElementById(list);
     removeListOptions(select);
 
-    for (var i = 0; i < env.getPointsSize(); i++){
+    for (var i = 0; i < env.points.length; i++){
         var opt = document.createElement('option');
         opt.value = i;
         opt.innerHTML = '(' + i + ')';
@@ -426,4 +426,75 @@ function load_example3(){
       "E": 210000000000,
       "dx": 0.0005
     });
+}
+
+function load_example4(){
+    load_example({
+        "objs": [
+        {
+          "id": 5,
+          "type": "beam",
+          "x1": 0,
+          "y1": 0,
+          "x2": 2,
+          "y2": 0
+        },
+        {
+          "id": 6,
+          "type": "beam",
+          "x1": 2,
+          "y1": 0,
+          "x2": 4.3,
+          "y2": 0
+        },
+        {
+          "id": 7,
+          "type": "beam",
+          "x1": 4.3,
+          "y1": 0,
+          "x2": 7.6,
+          "y2": 0
+        },
+        {
+          "id": 8,
+          "type": "support",
+          "support_type": "support_wrist",
+          "x": 0,
+          "y": 0,
+          "dir": "dir_y_plus"
+        },
+        {
+          "id": 9,
+          "type": "support",
+          "support_type": "support_trundle",
+          "x": 4.3,
+          "y": 0,
+          "dir": "dir_y_plus"
+        },
+        {
+          "id": 10,
+          "type": "support",
+          "support_type": "support_trundle",
+          "x": 7.6,
+          "y": 0,
+          "dir": "dir_y_plus"
+        },
+        {
+          "id": 11,
+          "type": "load",
+          "load_type": "load_force",
+          "x1": 2,
+          "y1": 0,
+          "x2": 0,
+          "y2": 0,
+          "c_x1": 0,
+          "c_y1": -17600,
+          "c_x2": 0,
+          "c_y2": 0
+        }
+      ],
+      "I": 0.0000145,
+      "E": 210000000000,
+      "dx": 0.0005
+  });
 }
