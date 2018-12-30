@@ -4,7 +4,9 @@ Síkbeli rúdszerkezetek támaszerőinek, igénybevételi ábráinak, elmozdulá
 
 A script futtatható a [https://g0mb4.github.io/Beam2DJS](https://g0mb4.github.io/Beam2DJS) linken.
 
-Az algoritmus *NEM* optimalizált, a cél a módszer megértése volt számomra, nem a tökéletes implementálás.
+A környezet, jelen pillanatban, egy, az ![x](https://latex.codecogs.com/gif.latex?x) síkban elhelyezkedő, tartó támaszerőrendszerét (![Fy](https://latex.codecogs.com/gif.latex?F_y), ![Mz](https://latex.codecogs.com/gif.latex?M_z)), igénybevételi ábráit (![Ty](https://latex.codecogs.com/gif.latex?T_y), ![Mhz](https://latex.codecogs.com/gif.latex?M_%7Bhz%7D)) és elmozdulásait (![v](https://latex.codecogs.com/gif.latex?v), ![phi](https://latex.codecogs.com/gif.latex?%5Cvarphi) képes kiszámolni.
+
+Az algoritmus **NEM** optimalizált, a cél a módszer megértése volt számomra, nem a tökéletes implementálás.
 
 A script használatáért **NEM** válallok felelősséget, **NEM** használható házi feladatok vagy zárthelyi dolgozatok megoldására.
 
@@ -35,5 +37,9 @@ Az összeállított tartó (rúdelemek, megtámasztások, terhelések, anyagjelm
 - MathJax [mathjax.org](https://www.mathjax.org)
 - Google Charts [developers.google.com/chart](https://developers.google.com/chart)
 
+#TODO
+- lineárisan megoszló terhelés
+- normál igénybevétel számítása
+- tört vonalú tartók
 # Licence
 A script teljesen nyílt forráskódú, felhasználható, módosítható, DE egyértelműen hivatkozni kell az eredeti forráskódra, jól látható helyen.
