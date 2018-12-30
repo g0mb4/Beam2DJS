@@ -25,5 +25,11 @@ Ezek után a **4. Megoldó** fül alatt kell megadni a szerkezet anyagjellemzői
 
 Az összeállított tartó (rúdelemek, megtámasztások, terhelések, anyagjelmzők) elmenthető a **0. Betöltés/Mentés** fül alatti **Mentés** gomb megnyomásával, ami után a szövegmezőbe megjelenő, szerkezetet leíró, szöveget ki kell másolni és elmenteni.
 
+# Felhasznált függvénykönyvtárak
+- p5.js [p5js.org](https://p5js.org)
+- mathjs [mathjs.org](http://mathjs.org)
+- MathJax [mathjax.org](https://www.mathjax.org)
+- Google Charts [developers.google.com/chart](https://developers.google.com/chart)
+
 # Licence
 A program teljesen nyílt forráskódú, felhasználható, módosítható, DE egyértelműen hivatkozni kell az eredeti forráskódra, jól látható helyen.
