@@ -1,10 +1,10 @@
 # Beam2DJS
 
-Síkbeli rúdszerkezetek támaszerőinek, igénybevételi ábráinak, elmozdulásainak meghatározására alkalmas program.
+Síkbeli rúdszerkezetek támaszerőinek, igénybevételi ábráinak, elmozdulásainak meghatározására alkalmas script/környezet.
 
-A program elérhető a [https://g0mb4.github.io/Beam2DJS](https://g0mb4.github.io/Beam2DJS) linken.
+A script futtatható a [https://g0mb4.github.io/Beam2DJS](https://g0mb4.github.io/Beam2DJS) linken.
 
-A program használatáért **NEM** válallok felelősséget, **NEM** használható házi feladatok vagy zárthelyi dolgozatok megoldására.
+A script használatáért **NEM** válallok felelősséget, **NEM** használható házi feladatok vagy zárthelyi dolgozatok megoldására.
 
 # Használat
 ## Betöltés/Mentés
@@ -34,4 +34,4 @@ Az összeállított tartó (rúdelemek, megtámasztások, terhelések, anyagjelm
 - Google Charts [developers.google.com/chart](https://developers.google.com/chart)
 
 # Licence
-A program teljesen nyílt forráskódú, felhasználható, módosítható, DE egyértelműen hivatkozni kell az eredeti forráskódra, jól látható helyen.
+A script teljesen nyílt forráskódú, felhasználható, módosítható, DE egyértelműen hivatkozni kell az eredeti forráskódra, jól látható helyen.
