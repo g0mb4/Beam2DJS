@@ -8,7 +8,7 @@ A környezet, jelen pillanatban, egy, az ![x](https://latex.codecogs.com/gif.lat
 
 Az algoritmus **NEM** optimalizált, a cél a módszer megértése volt számomra, nem a tökéletes implementálás.
 
-A script használatáért **NEM** válallok felelősséget, **NEM** használható házi feladatok vagy zárthelyi dolgozatok megoldására.
+A scriptet csak saját felelősségre használja!
 
 # Használat
 ## Betöltés/Mentés
