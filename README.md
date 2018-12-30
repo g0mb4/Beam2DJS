@@ -37,7 +37,7 @@ Az összeállított tartó (rúdelemek, megtámasztások, terhelések, anyagjelm
 - MathJax [mathjax.org](https://www.mathjax.org)
 - Google Charts [developers.google.com/chart](https://developers.google.com/chart)
 
-#TODO
+# TODO
 - lineárisan megoszló terhelés
 - normál igénybevétel számítása
 - tört vonalú tartók
