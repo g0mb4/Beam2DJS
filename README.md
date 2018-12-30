@@ -4,6 +4,8 @@ Síkbeli rúdszerkezetek támaszerőinek, igénybevételi ábráinak, elmozdulá
 
 A script futtatható a [https://g0mb4.github.io/Beam2DJS](https://g0mb4.github.io/Beam2DJS) linken.
 
+Az algoritmus *NEM* optimalizált, a cél a módszer megértése volt számomra, nem a tökéletes implementálás.
+
 A script használatáért **NEM** válallok felelősséget, **NEM** használható házi feladatok vagy zárthelyi dolgozatok megoldására.
 
 # Használat
