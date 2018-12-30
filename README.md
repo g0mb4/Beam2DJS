@@ -4,6 +4,8 @@ Síkbeli rúdszerkezetek támaszerőinek, igénybevételi ábráinak, elmozdulá
 
 A program elérhető a [https://g0mb4.github.io/Beam2DJS](https://g0mb4.github.io/Beam2DJS) linken.
 
+A program használatáért **NEM** válallok felelősséget, **NEM** használható házi feladatok és zárthelyi dolgozatok megoldására, pusztán a gyakorlást megkönnyítő céllal készült.
+
 # Használat
 ## Betöltés/Mentés
 A **0. Betöltés/Mentés** fül alatt a szövegmezőbe kell másolni a korábban elmentett összeállítást, majd meg kell nyomni a **Betöltés** gombot.
