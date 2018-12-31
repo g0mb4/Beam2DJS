@@ -139,6 +139,28 @@ class Beam2DEnvironment{
 
     updateSelectedID(id){
         this.selectedID = id;
+
+        if(this.selectedID != null){
+            var table = document.getElementById("properties");
+            table.innerHTML = "";
+
+            for (var i = 0; i < this.objects.length; i++){
+                if(this.objects[i].id == this.selectedID){
+                    var props = this.objects[i].listProperties();
+
+                    var row0 = table.insertRow(0).insertCell(0).innerHTML = props[0].value + " tulajdonságai";
+
+                    for(var p = 1; p < props.length; p++){
+                        var row = table.insertRow(p);
+
+                        row.insertCell(0).innerHTML = props[p].name;
+                        row.insertCell(1).innerHTML = props[p].value;
+                    }
+
+                    break;
+                }
+            }
+        }
     }
 
     updatePoints(){
@@ -215,6 +237,7 @@ class Beam2DEnvironment{
     }
 
     clearSolution(){
+        document.getElementById("table_results").innerHTML = "";
         document.getElementById('solution_text').innerHTML = "";
         document.getElementById('chart_shear').style.display = "none";
         document.getElementById('chart_bending_moment').style.display = "none";
@@ -336,7 +359,6 @@ class Beam2DEnvironment{
         //this._showMatricies();
 
         var table = document.getElementById("table_results");
-        table.innerHTML = "";
         var size = this.d.size()[0];
         var k = 0;
         for(var i = 0; i < size; i += 2){

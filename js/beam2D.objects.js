@@ -22,6 +22,18 @@ class Beam
             this.x2 * scale,
             height - (this.y2 * scale));
     }
+
+    listProperties(){
+        var props = [];
+
+        props.push({ name: "name", value: "beam " + this.id });
+        props.push({ name: "x1", value: this.x1  + " m"     });
+        props.push({ name: "y1", value: this.y1  + " m"     });
+        props.push({ name: "x2", value: this.x2  + " m"     });
+        props.push({ name: "y2", value: this.y2  + " m"     });
+
+        return props;
+    }
 }
 
 class Support
@@ -99,8 +111,21 @@ class Support
             line(  5, 0,   0, 10);
             line( 10, 0,   5, 10);
             line( 15, 0,  10, 10);
+        } else if(this.support_type == "support_joint"){
+            fill(0, 0, 128);
+            ellipse(0, 0, 10);
         }
         pop();
+    }
+
+    listProperties(){
+        var props = [];
+
+        props.push({ name: "name", value: this.support_type + " " + this.id });
+        props.push({ name: "x", value: this.x  + " m" });
+        props.push({ name: "y", value: this.y  + " m"  });
+
+        return props;
     }
 }
 
@@ -172,5 +197,31 @@ class Load
             line(lenX * scale, -30, lenX * scale, 0);
         }
         pop();
+    }
+
+    listProperties(){
+        var props = [];
+
+        props.push({ name: "name", value: this.load_type + " " + this.id });
+
+        if(this.load_type == "load_force"){
+            props.push({ name: "x", value: this.x1  + " m" });
+            props.push({ name: "y", value: this.y1  + " m"  });
+            props.push({ name: "Fx", value: this.c_x1  + " N" });
+            props.push({ name: "Fy", value: this.c_y1  + " N"  });
+        } else if(this.load_type == "load_moment"){
+            props.push({ name: "x", value: this.x1  + " m" });
+            props.push({ name: "y", value: this.y1  + " m"  });
+            props.push({ name: "M", value: this.c_x1  + " Nm" });
+        } else if(this.load_type == "load_dist_const"){
+            props.push({ name: "x1", value: this.x1  + " m" });
+            props.push({ name: "y1", value: this.y1  + " m"  });
+            props.push({ name: "x2", value: this.x2  + " m" });
+            props.push({ name: "y2", value: this.y2  + " m"  });
+            props.push({ name: "qx", value: this.c_x1  + " N/m" });
+            props.push({ name: "qy", value: this.c_y1  + " N/m" });
+        }
+
+        return props;
     }
 }

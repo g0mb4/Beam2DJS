@@ -177,6 +177,22 @@ function addUserDistConst(){
     }
 }
 
+function addUserDistConstComp(){
+    var point1Index = document.getElementById('list_points_dist_const_1').value;
+    p1 = env.getPoint(point1Index);
+
+    var point2Index = document.getElementById('list_points_dist_const_2').value;
+    p2 = env.getPoint(point2Index);
+
+    if(p1 != null && p2 != null){
+        var c_x = parseFloat(document.getElementById('dist_const_c_x').value);
+        var c_y = parseFloat(document.getElementById('dist_const_c_y').value);
+
+        env.addObject(new Load(env.getNextID(), p1.x, p1.y, p2.x, p2.y, "load_dist_const", c_x, c_y, c_x, c_y));
+        updateUIList("list_loads", "load");
+    }
+}
+
 
 function solve(){
     if(env != null){
@@ -254,247 +270,17 @@ function load_example(obj){
 }
 
 function load_example1(){
-    load_example({
-      "objs": [
-        {
-          "id": 0,
-          "type": "beam",
-          "x1": 0,
-          "y1": 0,
-          "x2": 1.9,
-          "y2": 0
-        },
-        {
-          "id": 1,
-          "type": "support",
-          "support_type": "support_fixed",
-          "x": 1.9,
-          "y": 0,
-          "dir": "dir_x_minus"
-        },
-        {
-          "id": 2,
-          "type": "load",
-          "load_type": "load_force",
-          "x1": 0,
-          "y1": 0,
-          "x2": 0,
-          "y2": 0,
-          "c_x1": 3473.2918522949863,
-          "c_y1": -3596.6990016932555,
-          "c_x2": 0,
-          "c_y2": 0
-        }
-      ],
-      "I": 0.00000573,
-      "E": 210000000000,
-      "dx": 0.001
-    });
+    load_example(b2dExample1);
 }
 
 function load_example2(){
-    load_example({
-      "objs": [
-        {
-          "id": 5,
-          "type": "beam",
-          "x1": 0,
-          "y1": 0,
-          "x2": 1.7,
-          "y2": 0
-        },
-        {
-          "id": 6,
-          "type": "beam",
-          "x1": 1.7,
-          "y1": 0,
-          "x2": 5,
-          "y2": 0
-        },
-        {
-          "id": 7,
-          "type": "beam",
-          "x1": 5,
-          "y1": 0,
-          "x2": 6.2,
-          "y2": 0
-        },
-        {
-          "id": 8,
-          "type": "support",
-          "support_type": "support_wrist",
-          "x": 0,
-          "y": 0,
-          "dir": "dir_y_plus"
-        },
-        {
-          "id": 9,
-          "type": "support",
-          "support_type": "support_trundle",
-          "x": 5,
-          "y": 0,
-          "dir": "dir_y_plus"
-        },
-        {
-          "id": 10,
-          "type": "load",
-          "load_type": "load_moment",
-          "x1": 1.7,
-          "y1": 0,
-          "x2": 0,
-          "y2": 0,
-          "c_x1": -4530,
-          "c_y1": 0,
-          "c_x2": 0,
-          "c_y2": 0
-        },
-        {
-          "id": 11,
-          "type": "load",
-          "load_type": "load_force",
-          "x1": 6.2,
-          "y1": 0,
-          "x2": 0,
-          "y2": 0,
-          "c_x1": -2414.2972266850666,
-          "c_y1": 2777.3312552198013,
-          "c_x2": 0,
-          "c_y2": 0
-        }
-      ],
-      "I": 0.00000171,
-      "E": 210000000000,
-      "dx": 0.001
-    });
+    load_example(b2dExample2);
 }
 
 function load_example3(){
-    load_example({
-      "objs": [
-        {
-          "id": 0,
-          "type": "beam",
-          "x1": 0,
-          "y1": 0,
-          "x2": 1.2,
-          "y2": 0
-        },
-        {
-          "id": 1,
-          "type": "beam",
-          "x1": 1.2,
-          "y1": 0,
-          "x2": 1.8,
-          "y2": 0
-        },
-        {
-          "id": 2,
-          "type": "support",
-          "support_type": "support_fixed",
-          "x": 1.8,
-          "y": 0,
-          "dir": "dir_x_minus"
-        },
-        {
-          "id": 3,
-          "type": "load",
-          "load_type": "load_force",
-          "x1": 0,
-          "y1": 0,
-          "x2": 0,
-          "y2": 0,
-          "c_x1": 3581.44231343778,
-          "c_y1": 2415.7133429936266,
-          "c_x2": 0,
-          "c_y2": 0
-        },
-        {
-          "id": 4,
-          "type": "load",
-          "load_type": "load_dist_const",
-          "x1": 1.2,
-          "y1": 0,
-          "x2": 1.8,
-          "y2": 0,
-          "c_x1": -3.416764569621115e-13,
-          "c_y1": -1860,
-          "c_x2": -3.416764569621115e-13,
-          "c_y2": -1860
-        }
-      ],
-      "I": 0.00000171,
-      "E": 210000000000,
-      "dx": 0.0005
-    });
+    load_example(b2dExample3);
 }
 
 function load_example4(){
-    load_example({
-        "objs": [
-        {
-          "id": 5,
-          "type": "beam",
-          "x1": 0,
-          "y1": 0,
-          "x2": 2,
-          "y2": 0
-        },
-        {
-          "id": 6,
-          "type": "beam",
-          "x1": 2,
-          "y1": 0,
-          "x2": 4.3,
-          "y2": 0
-        },
-        {
-          "id": 7,
-          "type": "beam",
-          "x1": 4.3,
-          "y1": 0,
-          "x2": 7.6,
-          "y2": 0
-        },
-        {
-          "id": 8,
-          "type": "support",
-          "support_type": "support_wrist",
-          "x": 0,
-          "y": 0,
-          "dir": "dir_y_plus"
-        },
-        {
-          "id": 9,
-          "type": "support",
-          "support_type": "support_trundle",
-          "x": 4.3,
-          "y": 0,
-          "dir": "dir_y_plus"
-        },
-        {
-          "id": 10,
-          "type": "support",
-          "support_type": "support_trundle",
-          "x": 7.6,
-          "y": 0,
-          "dir": "dir_y_plus"
-        },
-        {
-          "id": 11,
-          "type": "load",
-          "load_type": "load_force",
-          "x1": 2,
-          "y1": 0,
-          "x2": 0,
-          "y2": 0,
-          "c_x1": 0,
-          "c_y1": -17600,
-          "c_x2": 0,
-          "c_y2": 0
-        }
-      ],
-      "I": 0.0000145,
-      "E": 210000000000,
-      "dx": 0.0005
-  });
+    load_example(b2dExample4);
 }

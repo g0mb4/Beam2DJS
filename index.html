@@ -30,12 +30,16 @@
                     <button onclick="delUserObject('list_loads', 'load')">Kijelölt törlése</button><br>
                     <button onclick="delUserObjectsAll('load')">Összes törlésel</button><br><br>
                 </div></td>
+                <td valign="top">
+                    <table id="properties" style="border-collapse: collapse;" border="1">
+                    </table>
+                </td>
             </tr>
         </table>
         <div class="input-tab">
             <button class="tablinks" onclick="openTab(event, 'load_save_tab')">0. Betöltés/Mentés</button>
             <button class="tablinks" onclick="openTab(event, 'beam_tab')" style="background-color: #008CBA">1. Tartó</button>
-            <button class="tablinks" onclick="openTab(event, 'support_tab')" style="background-color: #008CBA">2. Megtámasztás</button>
+            <button class="tablinks" onclick="openTab(event, 'support_tab')" style="background-color: #008CBA">2. Kényszerek</button>
             <button class="tablinks" onclick="openTab(event, 'force_tab')" style="background-color: #008CBA">3. Erő</button>
             <button class="tablinks" onclick="openTab(event, 'moment_tab')" style="background-color: #008CBA">3. Nyomaték</button>
             <button class="tablinks" onclick="openTab(event, 'dist_const_tab')" style="background-color: #008CBA">3. Konst. megoszló</button>
@@ -47,16 +51,18 @@
           <table>
               <tr>
                   <td><button onclick="load_structure()">Betöltés</button></td>
-                  <td><button onclick="load_example1()">Példa 1 egyenes tartó - Sziltan Floppy - PRG4SZ/1/0</button></td>
-                  <td><button onclick="load_example4()">Példa 4 többtámaszú tartó - Sziltan Floppy - PRG7SZ/1/0</button></td>
+                  <td><button onclick="load_example(b2dExample1)">Példa 1 egyenes tartó - Sziltan Floppy - PRG4SZ/1/0</button></td>
+                  <td><button onclick="load_example(b2dExample4)">Példa 4 többtámaszú tartó - Sziltan Floppy - PRG7SZ/1/0</button></td>
               </tr>
               <tr>
                   <td><button onclick="save_structure()">Mentés</button></td>
-                  <td><button onclick="load_example2()">Példa 2 egyenes tartó - Sziltan Floppy - PRG4SZ/8/0</button></td>
+                  <td><button onclick="load_example(b2dExample2)">Példa 2 egyenes tartó - Sziltan Floppy - PRG4SZ/8/0</button></td>
+                  <!-- <td><button onclick="load_example(b2dExample5)">Példa 5 Gerber-tartó - Sziltan Floppy - PRG5SZ/11/0</button></td>
+                  -->
               </tr>
               <tr>
                   <td></td>
-                  <td><button onclick="load_example3()">Példa 3 egyenes tartó - Sziltan Floppy - PRG4SZ/4/0</button></td>
+                  <td><button onclick="load_example(b2dExample3)">Példa 3 egyenes tartó - Sziltan Floppy - PRG4SZ/4/0</button></td>
               </tr>
           </table><br>
             <td><textarea id="text_load_save" rows="30" cols="50"></textarea></td>
@@ -87,7 +93,7 @@
             </table>
         </div>
         <div id="support_tab" class="tabcontent">
-          <h3>Megtámasztás</h3>
+          <h3>Kényszerek</h3>
           <table>
               <tr>
                   <td>csatlakozási pont</td>
@@ -100,6 +106,8 @@
                         <input type="radio" name="support_type" value="support_trundle" checked="checked"><img src="imgs/support_trundle.png">
                         <input type="radio" name="support_type" value="support_wrist"><img src="imgs/support_wrist.png">
                         <input type="radio" name="support_type" value="support_fixed"><img src="imgs/support_fixed.png">
+                        <!--<input type="radio" name="support_type" value="support_joint"><img src="imgs/support_joint.png">
+                        -->
                     </form></td>
               </tr>
               <tr>
@@ -179,13 +187,19 @@
               <tr>
                   <td>nagyság</td>
                   <td><input id="dist_const_mag" value="1"/> N/m</td>
+                  <td>qx</td>
+                  <td><input id="dist_const_c_x" value="1"/> N/m</td>
               </tr>
               <tr>
                   <td>hajlásszög</td>
                   <td><input id="dist_const_angle" value="1"/> °</td>
+                  <td>qy</td>
+                  <td><input id="dist_const_c_y" value="1"/> N/m</td>
               </tr>
               <tr>
-                  <td><button onclick="addUserDistConst()">Terhelés hozzáadása</button></td>
+                  <td><button onclick="addUserDistConst()">Terhelés hozzáadása (nagyság, szög)</button></td>
+                  <td></td>
+                  <td><button onclick="addUserDistConstComp()">Terhelés hozzáadása (komponensek)</button></td>
                   <td></td>
               </tr>
           </table>
@@ -195,7 +209,7 @@
           <table>
               <tr>
                   <td>I</td>
-                  <td><input id="solver_I" value="5.73e-6"/> m^4  &nbsp&nbsp&nbsp&nbspHa csak az igénybevételi ábrák számítása a fontos, ez a paraméter lehet 1.</td> 
+                  <td><input id="solver_I" value="5.73e-6"/> m^4  &nbsp&nbsp&nbsp&nbspHa csak az igénybevételi ábrák számítása a fontos, ez a paraméter lehet 1.</td>
               </tr>
               <tr>
                   <td>E</td>
@@ -239,6 +253,7 @@
         });
     </script>
     <script src="js/beam2D.objects.js"></script>
+    <script src="js/beam2D.examples.js"></script>
     <script src="js/beam2D.solver.js"></script>
     <script src="js/beam2D.env.js"></script>
     <script src="js/globals.js"></script>
