@@ -4,7 +4,7 @@ Síkbeli rúdszerkezetek támaszerőinek, igénybevételi ábráinak, elmozdulá
 
 A script futtatható a [https://g0mb4.github.io/Beam2DJS](https://g0mb4.github.io/Beam2DJS) linken.
 
-A környezet, jelen pillanatban, egy, az ![x](https://latex.codecogs.com/gif.latex?x) síkban elhelyezkedő, tartó támaszerőrendszerét (![Fy](https://latex.codecogs.com/gif.latex?F_y), ![Mz](https://latex.codecogs.com/gif.latex?M_z)), igénybevételi ábráit (![Ty](https://latex.codecogs.com/gif.latex?T_y), ![Mhz](https://latex.codecogs.com/gif.latex?M_%7Bhz%7D)) és elmozdulásait (![v](https://latex.codecogs.com/gif.latex?v), ![phi](https://latex.codecogs.com/gif.latex?%5Cvarphi)) képes kiszámolni.
+A környezet, jelen pillanatban, egy, az ![x](https://latex.codecogs.com/gif.latex?x) síkban elhelyezkedő, tartó támaszerőrendszerét ($F_y$, $M_z$), igénybevételi ábráit ($T_y$, $M_{hz}$) és elmozdulásait ($v$, $\varphi$) képes kiszámolni.
 
 Az algoritmus **NEM** optimalizált, a cél a módszer megértése volt számomra, nem a tökéletes implementálás.
 
